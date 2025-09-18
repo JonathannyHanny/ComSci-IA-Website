@@ -1,0 +1,266 @@
+:root {
+  --gray-500: rgba(102, 112, 133, 1);
+  --grey-100: rgba(167, 167, 167, 1);
+  --grey-200: rgba(138, 138, 138, 1);
+  --grey-400: rgba(79, 79, 79, 1);
+  --variable-collection-color: var(--variable-collection-main);
+  --variable-collection-main: rgba(109, 166, 219, 1);
+}
+
+.log-in-page {
+  background-color: #e0eeff;
+  position: absolute;
+  width: 100%;
+  height:100%;
+  top:0;
+  left:0;
+}
+
+.log-in-page .image {
+  aspect-ratio: 1.5;
+  height: 100%;
+  left: 0;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+
+.log-in-page .content-box {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  left: 60%;
+  position: absolute;
+  top: 0;
+  width: 40%;
+  background:rgba(255, 255, 255, 0.975);
+}
+
+.log-in-page .title {
+  align-items: center;
+  display: flex;
+  gap: 16px;
+  height: 45px;
+  margin-left: 20%;
+  margin-top: 5%;
+  position: relative;
+  width: 250px;
+}
+
+.log-in-page .ClassBeyond {
+  align-items: center;
+  height: 45px;
+  margin-left: 20%;
+  margin-top: 35%;
+  position: relative;
+  width: 250px;
+}
+
+
+.log-in-page .text-wrapper {
+  color: var(--grey-400);
+  font-family: "Kumbh Sans-SemiBold", Helvetica;
+  font-size: 36px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: normal;
+  margin-top: -1.00px;
+  position: relative;
+  text-align: center;
+  width: fit-content;
+}
+
+.log-in-page .title-wrapper {
+  color: var(--grey-400);
+  font-family: "Kumbh Sans-SemiBold", Helvetica;
+  font-size: 60px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: normal;
+  margin-top: -1.00px;
+  position: relative;
+  text-align: center;
+  width: fit-content;
+}
+
+.log-in-page .sub-heading {
+  color: var(--gray-500);
+  font-family: "Inter-Medium", Helvetica;
+  font-size: 16px;
+  font-weight: 500;
+  height: 25px;
+  letter-spacing: 0;
+  line-height: 25px;
+  margin-left: 20%;
+  margin-top: 5%;
+  width: 280px;
+}
+
+.log-in-page .div {
+  background: transparent;
+  border: none;
+  color: var(--grey-200);
+  font-family: "Kumbh Sans-Medium", Helvetica;
+  font-size: 14px;
+  font-weight: 500;
+  left: 13px;
+  letter-spacing: 0;
+  line-height: normal;
+  padding: 0;
+  position: absolute;
+  top: 13px;
+}
+
+.log-in-page .rectangle {
+  border: 0.5px solid;
+  border-color: var(--grey-100);
+  border-radius: 4px;
+  height: 42px;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+
+.log-in-page .password {
+  height: 42px;
+  margin-left: 20%;
+  margin-top: 1.5%;
+  position: relative;
+  width: 250px;
+}
+
+.log-in-page .email {
+  height: 42px;
+  margin-left: 20%;
+  margin-top: 2%;
+  position: relative;
+  width: 250px;
+}
+
+.log-in-page .input-field {
+  box-sizing: border-box; 
+  width: 100%;
+  height: 100%;
+  background-color: #ffffff;
+  border-color:#667084;
+  border-style: double;
+  border-width: 1px 1px 1.5px 1px;
+  color: var(--grey-200);
+  font-family: "Kumbh Sans-Medium", Helvetica;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 3%;
+  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+  -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+  box-sizing: border-box;
+
+  letter-spacing: 0;
+  line-height: normal;
+  border-radius: 8px;
+}
+
+.log-in-page .log-in-button {
+  height: 42px;
+  width: 250px;
+ background-color: #5ca4e8;
+  color: #ffffff;
+  margin-left: 20%;
+  margin-top: 14px;
+  border-radius: 4px;
+
+  padding: 2%;
+  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+  -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+  box-sizing: border-box;
+
+  font-family: "Kumbh Sans-Medium", Helvetica;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.log-in-button:hover {
+  background-color: #0056b3;
+}
+
+
+.log-in-page .text-link {
+  height: 42px;
+  width: 250px;
+ background-color: #5ca4e8;
+  color: #ffffff;
+  margin-left: 20%;
+  margin-top: 14px;
+  border-radius: 4px;
+
+  padding: 2%;
+  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+  -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+  box-sizing: border-box;
+
+  font-family: "Kumbh Sans-Medium", Helvetica;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.log-in-page .group {
+  height: 42px;
+  position: relative;
+  width: 250px;
+}
+
+.log-in-page .img {
+  height: 42px;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 248px;
+}
+
+.log-in-page .text-wrapper-3 {
+  color: #000000;
+  font-family: "Kumbh Sans-Bold", Helvetica;
+  font-size: 14px;
+  font-weight: 700;
+  left: 103px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  top: 11px;
+  width: 43px;
+}
+
+.log-in-page .sign-up {
+  color: transparent;
+  font-family: "Inter-Regular", Helvetica;
+  font-size: 12px;
+  font-weight: 400;
+  height: 31px;
+  letter-spacing: 0;
+  line-height: 24px;
+  margin-left: 128px;
+  margin-top: 14px;
+  text-align: center;
+  width: 253px;
+}
+
+.log-in-page .span {
+  color: #667084;
+}
+
+.log-in-page .text-wrapper-4 {
+  color: #5ca4e8;
+  font-family: "Inter-Bold", Helvetica;
+  font-weight: 700;
+}
+
+.log-in-page .bottom-footing {
+  background-color: #eaeaea;
+  height: 5%;
+  left: 0;
+  position: absolute;
+  top: 95%;
+  transform: rotate(180deg);
+  width: 100%;
+}
