@@ -7,16 +7,12 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Default route */}
         <Route path="/" element={<LogInPage />} />
 
-        {/* Sign-in route */}
         <Route path="/login" element={<LogInPage />} />
 
-        {/* Sign-up route */}
         <Route path="/signup" element={<SignUpPage />} />
 
-        {/* Catch-all redirect to sign-in */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

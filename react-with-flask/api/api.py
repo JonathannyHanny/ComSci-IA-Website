@@ -1,8 +1,9 @@
-import time
-from flask import Flask
-
-from flask import Flask, send_from_directory
 import os
+
+from mysql_utils import create_user, get_user_by_email
+from flask import Flask, send_from_directory, jsonify, request
+
+import time
 
 app = Flask(__name__, static_folder="dist", static_url_path="")
 
@@ -19,3 +20,31 @@ def catch_all(path):
 @app.route('/api/time')
 def get_current_time():
     return {'time': time.time()}
+
+
+@app.route('/api/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+    if not email or not password:
+        return jsonify({'error': 'Email and password required'}), 400
+    try:
+        user_id = create_user(email, password)
+        return jsonify({'user_id': user_id, 'email': email}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+    if not email or not password:
+        return jsonify({'error': 'Email and password required'}), 400
+    user = get_user_by_email(email)
+    if user and user['password'] == password:
+        return jsonify({'user_id': user['user_id'], 'email': user['email']}), 200
+    else:
+        return jsonify({'error': 'Invalid credentials'}), 401
+
