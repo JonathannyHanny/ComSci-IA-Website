@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import image2 from "../assets/LogInBackground.png";
-
 import { Link } from "react-router-dom";
-import "./Login.css";
 
 export const SignUpPage = () => {
   const [email, setEmail] = useState("");
@@ -32,58 +30,85 @@ export const SignUpPage = () => {
   };
 
   return (
-    <div className="log-in-page">
-      <img className="image" alt="Image" src={image2} />
-
-      <div className="content-box">
-        <div className="ClassBeyond">
-          <span className="title-wrapper">Class</span>
-          <span className="title-wrapper">Beyond</span>
-        </div>
-
-        <div className="title">
-          <div className="text-wrapper">Sign Up</div>
-        </div>
-
-        <div className="sub-heading">Welcome to ClassBeyond!</div>
-
-        <form onSubmit={handleSignUp}>
-          <div className="email">
-            <input
-              className="input-field"
-              type="email"
-              placeholder="Email"
-              name="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-            />
+    <div
+      className="min-vh-100 position-relative"
+      style={{
+        backgroundImage: `url(${image2})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        width: '100vw',
+        height: '100vh',
+        overflow: 'hidden',
+      }}
+    >
+      <div
+        className="d-flex align-items-stretch justify-content-end"
+        style={{ height: '100vh', width: '100vw', position: 'absolute', top: 0, left: 0 }}
+      >
+        <div
+          className="card p-4 shadow d-flex flex-column justify-content-center  rounded-0"
+          style={{ maxWidth: 550, width: '100%', height: '100vh', background: 'rgba(255,255,255,0.975)', borderRadius: '1rem 0 0 1rem' }}
+        >
+          <div className="mb-2 text-start" style={{ marginLeft: 115 }}>
+            <span className="fw-bold fs-1" style={{ color: '#212529' }}>Class</span>
+            <span className="fw-bold fs-1" style={{ color: '#ff5f57' }}>Beyond</span>
           </div>
-          <div className="password">
-            <input
-              className="input-field"
-              type="password"
-              placeholder="Password"
-              name="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-            />
+          <h3 className="mb-5 text-start" style={{ marginLeft: 115 }}>Sign Up</h3>
+          <div className="text-muted mb-2 text-start" style={{ marginLeft: 115 }}>Welcome to ClassBeyond!</div>
+          <form onSubmit={handleSignUp}>
+            <div className="d-flex flex-column align-items-center">
+              <div className="mb-3 w-100 d-flex justify-content-center">
+                <input
+                  type="email"
+                  className="form-control"
+                  placeholder="Email"
+                  name="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  required
+                  style={{ maxWidth: 270, height: '5vh' }}
+                />
+              </div>
+              <div className="mb-3 w-100 d-flex justify-content-center">
+                <input
+                  type="password"
+                  className="form-control"
+                  placeholder="Password"
+                  name="password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                  style={{ maxWidth: 270, height: '5vh' }}
+                />
+              </div>
+              <button
+                type="submit"
+                className="btn mb-2"
+                style={{ maxWidth: 270, width: '100%', height: '5vh', backgroundColor: '#5CA4E8', color: '#fff', border: 'none' }}
+              >
+                Sign Up
+              </button>
+            </div>
+          </form>
+          {error && <div className="alert alert-danger mt-2">{error}</div>}
+          {success && <div className="alert alert-success mt-2">{success}</div>}
+          <div className="text-center mt-3">
+            <span>Already have an account? </span>
+            <Link to="/login" className="link-primary">Log In</Link>
           </div>
-          <button className="log-in-button" type="submit">
-            Sign Up
-          </button>
-        </form>
-  {error && <div className="signup-error">{error}</div>}
-  {success && <div className="signup-success">{success}</div>}
-
-        <p className="sign-up">
-          <span className="span">Already have an account? </span>
-           <Link to="/login" className="text-wrapper-4">Log In</Link>
-        </p>
+        </div>
       </div>
-
-      <div className="bottom-footing" />
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          width: '100vw',
+          height: '35px',
+          background: 'rgba(236, 236, 236, 1)',
+        }}
+      />
     </div>
   );
 };
