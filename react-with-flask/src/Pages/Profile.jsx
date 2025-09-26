@@ -4,7 +4,7 @@ import "./Dashboard.css";
 import image2 from "../assets/LogInBackground.png";
 import { UserContext } from "../UserContext.jsx";
 
-export const AdminPage = () => {
+export const ProfilePage = () => {
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
   React.useEffect(() => {
@@ -58,9 +58,9 @@ export const AdminPage = () => {
               return (
                 <>
                   <button className="sidebar-btn" style={btnStyle} onClick={() => window.location.href = "/dashboard"}>Dashboard</button>
-                  <button className="sidebar-btn" style={btnStyle} onClick={() => window.location.href = "/profile"}>Profile</button>
+                  <button className="sidebar-btn" style={activeStyle} disabled>Profile</button>
                   <button className="sidebar-btn" style={btnStyle} onClick={() => window.location.href = "/settings"}>Settings</button>
-                  <button className="sidebar-btn" style={activeStyle} disabled>Admin</button>
+                  <button className="sidebar-btn" style={btnStyle} onClick={() => window.location.href = "/admin"}>Admin</button>
                 </>
               );
             })()}
@@ -70,28 +70,24 @@ export const AdminPage = () => {
           <div className="container-fluid">
             <div className="row mb-4">
               <div className="col-lg-12">
-                <h1 style={{ color: "#fff", fontWeight: "bold", fontSize: 56, margin: "32px 0 24px 80px", letterSpacing: 2 }}>Admin</h1>
+                <h1 style={{ color: "#fff", fontWeight: "bold", fontSize: 56, margin: "32px 0 24px 80px", letterSpacing: 2 }}>Profile</h1>
               </div>
             </div>
             <div className="row mb-7">
               <div className="col-lg-7">
                 <div className="card mb-5" style={{ minHeight: '450px', paddingBottom: '48px', border: 'none', borderRadius: '12px' }}>
-                  <div className="card-header bg-primary text-white" style={{ fontSize: '1.5rem', fontWeight: '500', letterSpacing: '1px', borderTopLeftRadius: '12px', borderTopRightRadius: '12px' }}>Make an Extracurricular</div>
+                  <div className="card-header bg-primary text-white" style={{ fontSize: '1.5rem', fontWeight: '500', letterSpacing: '1px', borderTopLeftRadius: '12px', borderTopRightRadius: '12px' }}>User Info</div>
                   <div className="card-body" style={{ background: '#E7E7E7', minHeight: '220px', margin: '24px', overflowY: 'auto', borderRadius: '8px' }}>
-                    {/* Admin content goes here */}
-                    <div className="mb-3">New Activity</div>
-                    <div className="mb-3">Tags</div>
-                    <div className="mb-3">Competencies</div>
-                    <div className="mb-3">Description</div>
-                    <button className="btn btn-danger">SUBMIT</button>
+                    <div className="mb-3">Email: {user ? user.email : "(not logged in)"}</div>
+                    <div className="mb-3">Name: {user && (user.first_name || user.last_name) ? `${user.first_name || "DebugFirst"} ${user.last_name || "DebugLast"}` : "FNAME LNAME (debug)"}</div>
                   </div>
                 </div>
               </div>
               <div className="col-lg-4">
                 <div className="card mb-5" style={{ minHeight: '450px', paddingBottom: '48px', border: 'none', borderRadius: '12px' }}>
-                  <div className="card-header bg-primary text-white" style={{ fontSize: '1.5rem', fontWeight: '500', letterSpacing: '1px', borderTopLeftRadius: '12px', borderTopRightRadius: '12px' }}>Admin Tools</div>
+                  <div className="card-header bg-primary text-white" style={{ fontSize: '1.5rem', fontWeight: '500', letterSpacing: '1px', borderTopLeftRadius: '12px', borderTopRightRadius: '12px' }}>Profile Actions</div>
                   <div className="card-body" style={{ background: '#E7E7E7', minHeight: '220px', margin: '24px', overflowY: 'auto', borderRadius: '8px' }}>
-                    {/* Admin tools or info goes here */}
+                    {/* Profile actions or info goes here */}
                   </div>
                 </div>
               </div>

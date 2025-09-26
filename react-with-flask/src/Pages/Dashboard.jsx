@@ -46,12 +46,36 @@ export const DashboardPage = () => {
         <div className="w-100 d-flex flex-column align-items-center">
           {(() => {
             const collapsed = typeof window !== 'undefined' && window.innerWidth <= 600;
+            const btnStyle = {
+              background: "#3A498B",
+              color: "#fff",
+              border: "none",
+              borderRadius: 6,
+              margin: "4px 0",
+              padding: "10px 24px",
+              fontWeight: "500",
+              width: "calc(100% - 50px)",
+              textAlign: collapsed ? "center" : "left",
+              cursor: "pointer"
+            };
+            const activeStyle = {
+              background: "rgb(255, 95, 87)",
+              color: "#fff",
+              borderRadius: 6,
+              margin: "4px 0",
+              padding: "10px 24px",
+              fontWeight: "500",
+              width: "calc(100% - 50px)",
+              textAlign: collapsed ? "center" : "left",
+              cursor: "not-allowed",
+              opacity: 0.8
+            };
             return (
               <>
-                <div className="sidebar-btn" style={{ background: "#E85C5C", color: "#fff", borderRadius: 6, margin: "4px 0", padding: "10px 24px", fontWeight: "500", width: "calc(100% - 50px)", textAlign: collapsed ? "center" : "left" }}>{collapsed ? "D" : "Dashboard"}</div>
-                <button className="sidebar-btn" style={{ background: "#3A498B", color: "#fff", border: "none", borderRadius: 6, margin: "4px 0", padding: "10px 24px", fontWeight: "500", width: "calc(100% - 50px)", textAlign: collapsed ? "center" : "left"}}>{collapsed ? "P" : "Profile"}</button>
-                <button className="sidebar-btn" style={{ background: "#3A498B", color: "#fff", border: "none", borderRadius: 6, margin: "4px 0", padding: "10px 24px", fontWeight: "500", width: "calc(100% - 50px)", textAlign: collapsed ? "center" : "left"}}>{collapsed ? "S" : "Settings"}</button>
-                <button className="sidebar-btn" style={{ background: "#3A498B", color: "#fff", border: "none", borderRadius: 6, margin: "4px 0", padding: "10px 24px", fontWeight: "500", width: "calc(100% - 50px)", textAlign: collapsed ? "center" : "left"}}>{collapsed ? "A" : "Admin"}</button>
+                <button className="sidebar-btn" style={activeStyle} disabled>{collapsed ? "D" : "Dashboard"}</button>
+                <button className="sidebar-btn" style={btnStyle} onClick={() => window.location.href = "/profile"} >{collapsed ? "P" : "Profile"}</button>
+                <button className="sidebar-btn" style={btnStyle} onClick={() => window.location.href = "/settings"} >{collapsed ? "S" : "Settings"}</button>
+                <button className="sidebar-btn" style={btnStyle} onClick={() => window.location.href = "/admin"} >{collapsed ? "A" : "Admin"}</button>
               </>
             );
           })()}
