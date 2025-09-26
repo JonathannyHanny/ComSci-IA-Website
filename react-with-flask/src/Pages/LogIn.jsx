@@ -1,5 +1,5 @@
-import React, { useState, useContext } from "react";
-import { UserContext } from "../UserContext.jsx";
+import React, { useState } from "react";
+// import { UserContext } from "../UserContext.jsx"; // No longer used
 import { useNavigate, Link } from "react-router-dom";
 import image2 from "../assets/LogInBackground.png";
 
@@ -7,7 +7,6 @@ export const LogInPage = () => {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { setUser } = useContext(UserContext);
 
   const handleChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -24,12 +23,12 @@ export const LogInPage = () => {
       });
       const data = await response.json();
       if (response.ok) {
-        setUser({
-          email: data.email,
-          user_id: data.user_id,
-          first_name: data.first_name || "",
-          last_name: data.last_name || ""
-        });
+        // Set cookie for login status and user info
+        document.cookie = `logged_in=true; path=/`;
+        document.cookie = `user_email=${data.email}; path=/`;
+        document.cookie = `user_first_name=${data.first_name || ''}; path=/`;
+        document.cookie = `user_last_name=${data.last_name || ''}; path=/`;
+        document.cookie = `user_id=${data.user_id}; path=/`;
         navigate("/dashboard");
       } else {
         setError(data.error || "Login failed");

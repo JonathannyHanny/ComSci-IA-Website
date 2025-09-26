@@ -1,19 +1,29 @@
 
-import React, { useContext } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import { UserContext } from "../UserContext.jsx";
+// import { UserContext } from "../UserContext.jsx"; // No longer used
 import "./Dashboard.css";
 import image2 from "../assets/LogInBackground.png";
 
 export const DashboardPage = () => {
-  const { user } = useContext(UserContext);
-  const navigate = useNavigate();
+  // Cookie-based login check
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+  }
   React.useEffect(() => {
-    if (!user) {
-      navigate("/login");
+    if (getCookie('logged_in') !== 'true') {
+      window.location.href = "/login";
     }
-  }, [user, navigate]);
-  if (!user) return null;
+  }, []);
+  const user = {
+    email: getCookie('user_email'),
+    first_name: getCookie('user_first_name'),
+    last_name: getCookie('user_last_name'),
+    user_id: getCookie('user_id')
+  };
   return (
     <div style={{ minHeight: "100vh", width: "100vw", background: "#ECECEC", overflowY: "auto", overflowX: "hidden", position: "relative" }}>
     <div className="dashboard-top-bg" style={{ position: "absolute", left: "var(--sidebar-width, 0px)", width: "100%", height: "500px" }}>
