@@ -1,6 +1,6 @@
-
+from mysql_utils import get_all_activities
 from flask import Flask, send_from_directory, jsonify, request
-from mysql_utils import create_user, get_user_by_email
+from mysql_utils import create_user, get_user_by_email, create_activity
 import os
 import time
 
@@ -13,6 +13,14 @@ def catch_all(path):
     if os.path.exists(file_path):
         return send_from_directory(app.static_folder, path)
     return send_from_directory(app.static_folder, "index.html")
+
+@app.route('/api/activities', methods=['GET'])
+def list_activities():
+    try:
+        activities = get_all_activities()
+        return jsonify({'activities': activities}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/time')
 def get_current_time():
@@ -55,4 +63,19 @@ def login():
             'last_name': user.get('last_name', '')
         }), 200
     return jsonify({'error': 'Invalid credentials'}), 401
+
+@app.route('/api/activities', methods=['POST'])
+def create_activity_api():
+    data = request.get_json()
+    name = data.get('name')
+    description = data.get('description', '')
+    tags = data.get('tags', [])
+    competencies = data.get('competencies', [])
+    if not name:
+        return jsonify({'error': 'Activity name required'}), 400
+    try:
+        activity_id = create_activity(name, description, tags, competencies)
+        return jsonify({'activity_id': activity_id}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 

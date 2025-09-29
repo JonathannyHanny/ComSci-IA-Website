@@ -1,29 +1,62 @@
 
 import React from "react";
-import { useNavigate } from "react-router-dom";
-// import { UserContext } from "../UserContext.jsx"; // No longer used
 import "./Dashboard.css";
 import image2 from "../assets/LogInBackground.png";
 
 export const DashboardPage = () => {
-  // Cookie-based login check
   function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(';').shift();
     return null;
   }
-  React.useEffect(() => {
-    if (getCookie('logged_in') !== 'true') {
-      window.location.href = "/login";
-    }
-  }, []);
+
   const user = {
     email: getCookie('user_email'),
     first_name: getCookie('user_first_name'),
     last_name: getCookie('user_last_name'),
     user_id: getCookie('user_id')
   };
+
+  const [activities, setActivities] = React.useState([]);
+  const [loadingActivities, setLoadingActivities] = React.useState(true);
+  const [filterType, setFilterType] = React.useState('Alphabetical');
+  const [search, setSearch] = React.useState('');
+
+  React.useEffect(() => {
+    if (getCookie('logged_in') !== 'true') {
+      window.location.href = "/login";
+    }
+  }, []);
+
+  React.useEffect(() => {
+    async function fetchActivities() {
+      setLoadingActivities(true);
+      try {
+        const res = await fetch('/api/activities');
+        const data = await res.json();
+        if (res.ok) {
+          setActivities(data.activities || []);
+        }
+      } catch {}
+      setLoadingActivities(false);
+    }
+    fetchActivities();
+  }, []);
+
+  // Filter and sort activities
+  const filteredActivities = React.useMemo(() => {
+    let acts = [...activities];
+    if (search) {
+      acts = acts.filter(a => a.name.toLowerCase().includes(search.toLowerCase()));
+    }
+    if (filterType === 'Alphabetical') {
+      acts.sort((a, b) => a.name.localeCompare(b.name));
+    }
+    // Other filter types can be added here
+    return acts;
+  }, [activities, search, filterType]);
+
   return (
     <div style={{ minHeight: "100vh", width: "100vw", background: "#ECECEC", overflowY: "auto", overflowX: "hidden", position: "relative" }}>
     <div className="dashboard-top-bg" style={{ position: "absolute", left: "var(--sidebar-width, 0px)", width: "100%", height: "500px" }}>
@@ -124,21 +157,43 @@ export const DashboardPage = () => {
                   <div className="row mb-4">
                     <div className="col-md-6">
                       <div className="input-group">
-                        <input type="text" className="form-control" placeholder="Search" />
-                        <button className="btn btn-outline-primary" type="button">Search</button>
+                        <input type="text" className="form-control" placeholder="Search" value={search} onChange={e => setSearch(e.target.value)} />
                       </div>
                     </div>
                     <div className="col-md-6">
-                      <select className="form-select">
-                        <option>Filter Type</option>
-                        <option>Type 1</option>
-                        <option>Type 2</option>
+                      <select className="form-select" value={filterType} onChange={e => setFilterType(e.target.value)}>
+                        <option value="Alphabetical">Alphabetical</option>
+                        <option value="Similiar">Similiar to what you've done</option>
+                        <option value="New">Try something new</option>
                       </select>
                     </div>
                   </div>
                 </div>
                 <div className="card-body" style={{ background: '#E7E7E7', height: '220px', margin: '24px', marginTop: '32px', overflowY: 'auto', borderRadius: '8px', padding: 0 }}>
-                  {/* Scrollable inset for Activities */}
+                  <div style={{ height: '180px', overflowY: 'auto', background: '#f5f5f5', borderRadius: '8px', boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.08)', margin: 0, padding: 16 }}>
+                    {loadingActivities ? (
+                      <div>Loading activities...</div>
+                    ) : filteredActivities.length === 0 ? (
+                      <div>No activities found.</div>
+                    ) : (
+                      filteredActivities.map(act => (
+                        <div key={act.activity_id} style={{ background: '#fff', borderRadius: 6, padding: '12px 16px', boxShadow: '0 1px 2px rgba(0,0,0,0.03)', marginBottom: 12 }}>
+                          <div style={{ fontWeight: 600, fontSize: 18 }}>{act.name}</div>
+                          {act.description && <div style={{ color: '#444', fontSize: 15, margin: '4px 0 6px 0' }}>{act.description}</div>}
+                          {act.tags && act.tags.length > 0 && (
+                            <div style={{ fontSize: 14, color: '#2d5c8a', marginBottom: 2 }}>
+                              <span style={{ fontWeight: 500 }}>Tags:</span> {act.tags.join(', ')}
+                            </div>
+                          )}
+                          {act.competencies && act.competencies.length > 0 && (
+                            <div style={{ fontSize: 14, color: '#8a2d5c' }}>
+                              <span style={{ fontWeight: 500 }}>Competencies:</span> {act.competencies.join(', ')}
+                            </div>
+                          )}
+                        </div>
+                      ))
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

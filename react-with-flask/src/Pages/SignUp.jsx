@@ -12,17 +12,20 @@ export const SignUpPage = () => {
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [signingUp, setSigningUp] = useState(false);
 
-  const handleChange = e => {
+  function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  }
 
-  const handleSignUp = async e => {
+  async function handleSignUp(e) {
     e.preventDefault();
     setError("");
     setSuccess("");
+    setSigningUp(true);
     if (form.password !== form.password2) {
       setError("Passwords do not match");
+      setSigningUp(false);
       return;
     }
     try {
@@ -45,7 +48,8 @@ export const SignUpPage = () => {
     } catch (err) {
       setError("Unknown error");
     }
-  };
+    setSigningUp(false);
+  }
 
   return (
     <div
@@ -140,8 +144,9 @@ export const SignUpPage = () => {
                 type="submit"
                 className="btn mb-2"
                 style={{ maxWidth: 270, width: "100%", height: "5vh", backgroundColor: "#5CA4E8", color: "#fff", border: "none" }}
+                disabled={signingUp}
               >
-                Sign Up
+                {signingUp ? 'Signing up, please wait' : 'Sign Up'}
               </button>
             </div>
           </form>

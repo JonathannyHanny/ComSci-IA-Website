@@ -1,20 +1,21 @@
 import React, { useState } from "react";
-// import { UserContext } from "../UserContext.jsx"; // No longer used
 import { useNavigate, Link } from "react-router-dom";
 import image2 from "../assets/LogInBackground.png";
 
 export const LogInPage = () => {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+  const [loggingIn, setLoggingIn] = useState(false);
   const navigate = useNavigate();
 
-  const handleChange = e => {
+  function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  }
 
-  const handleLogin = async e => {
+  async function handleLogin(e) {
     e.preventDefault();
     setError("");
+    setLoggingIn(true);
     try {
       const response = await fetch("/api/login", {
         method: "POST",
@@ -23,7 +24,6 @@ export const LogInPage = () => {
       });
       const data = await response.json();
       if (response.ok) {
-        // Set cookie for login status and user info
         document.cookie = `logged_in=true; path=/`;
         document.cookie = `user_email=${data.email}; path=/`;
         document.cookie = `user_first_name=${data.first_name || ''}; path=/`;
@@ -36,7 +36,8 @@ export const LogInPage = () => {
     } catch {
       setError("Server error");
     }
-  };
+    setLoggingIn(false);
+  }
 
   return (
     <div
@@ -95,8 +96,9 @@ export const LogInPage = () => {
                 type="submit"
                 className="btn mb-2"
                 style={{ maxWidth: 270, width: "100%", height: "5vh", backgroundColor: "#5CA4E8", color: "#fff", border: "none" }}
+                disabled={loggingIn}
               >
-                Log In
+                {loggingIn ? 'Logging in, please wait' : 'Log In'}
               </button>
             </div>
           </form>

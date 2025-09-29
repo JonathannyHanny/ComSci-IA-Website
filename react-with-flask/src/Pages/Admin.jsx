@@ -1,27 +1,102 @@
-import React from "react";
-import "./Dashboard.css";
-import image2 from "../assets/LogInBackground.png";
-// import { UserContext } from "../UserContext.jsx"; // No longer used
+  import React from "react";
+  import "./Dashboard.css";
+  import image2 from "../assets/LogInBackground.png";
 
-export const AdminPage = () => {
-  // Cookie-based login check
-  function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-    return null;
-  }
-  React.useEffect(() => {
-    if (getCookie('logged_in') !== 'true') {
-      window.location.href = "/login";
+  export const AdminPage = () => {
+    // Cookie helpers
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+      return null;
     }
-  }, []);
-  const user = {
-    email: getCookie('user_email'),
-    first_name: getCookie('user_first_name'),
-    last_name: getCookie('user_last_name'),
-    user_id: getCookie('user_id')
-  };
+
+    // User info
+    const user = {
+      email: getCookie('user_email'),
+      first_name: getCookie('user_first_name'),
+      last_name: getCookie('user_last_name'),
+      user_id: getCookie('user_id')
+    };
+
+    // Activity creation state
+    const [activity, setActivity] = React.useState({
+      name: '',
+      tags: '',
+      competencies: '',
+      description: ''
+    });
+    const [submitMsg, setSubmitMsg] = React.useState('');
+    const [submitting, setSubmitting] = React.useState(false);
+
+    // Activities list for delete
+    const [activities, setActivities] = React.useState([]);
+    const [loadingActivities, setLoadingActivities] = React.useState(true);
+    const [deletingId, setDeletingId] = React.useState(null);
+
+    // Auth check
+    React.useEffect(() => {
+      if (getCookie('logged_in') !== 'true') {
+        window.location.href = "/login";
+      }
+    }, []);
+
+    // Fetch activities for delete list
+    React.useEffect(() => {
+      async function fetchActivities() {
+        setLoadingActivities(true);
+        try {
+          const res = await fetch('/api/activities');
+          const data = await res.json();
+          if (res.ok) {
+            setActivities(data.activities || []);
+          }
+        } catch {}
+        setLoadingActivities(false);
+      }
+      fetchActivities();
+    }, []);
+
+    // Form change handler
+    function handleChange(e) {
+      setActivity({ ...activity, [e.target.name]: e.target.value });
+    }
+
+    // Form submit handler
+    async function handleSubmit(e) {
+      e.preventDefault();
+      setSubmitMsg('');
+      setSubmitting(true);
+      try {
+        const res = await fetch('/api/activities', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: activity.name,
+            description: activity.description,
+            tags: activity.tags.split(',').map(t => t.trim()).filter(Boolean),
+            competencies: activity.competencies.split(',').map(c => c.trim()).filter(Boolean)
+          })
+        });
+        if (res.ok) {
+          setSubmitMsg('Activity submitted!');
+          setActivity({ name: '', tags: '', competencies: '', description: '' });
+        } else {
+          const data = await res.json();
+          setSubmitMsg(data.error || 'Error submitting activity');
+        }
+      } catch (err) {
+        setSubmitMsg('Server error');
+      }
+      setSubmitting(false);
+    }
+
+    // Delete activity handler (API not yet implemented)
+    async function handleDeleteActivity(id) {
+      setDeletingId(id);
+      // TODO: Call DELETE API, then refresh list
+      setDeletingId(null);
+    }
   return (
     <div style={{ minHeight: "100vh", width: "100vw", background: "#ECECEC", overflowY: "auto", overflowX: "hidden", position: "relative" }}>
       <div className="dashboard-top-bg" style={{ position: "absolute", left: "var(--sidebar-width, 0px)", width: "100%", height: "500px" }}>
@@ -87,20 +162,51 @@ export const AdminPage = () => {
                 <div className="card mb-5" style={{ minHeight: '450px', paddingBottom: '48px', border: 'none', borderRadius: '12px' }}>
                   <div className="card-header bg-primary text-white" style={{ fontSize: '1.5rem', fontWeight: '500', letterSpacing: '1px', borderTopLeftRadius: '12px', borderTopRightRadius: '12px' }}>Make an Extracurricular</div>
                   <div className="card-body" style={{ background: '#E7E7E7', minHeight: '220px', margin: '24px', overflowY: 'auto', borderRadius: '8px' }}>
-                    {/* Admin content goes here */}
-                    <div className="mb-3">New Activity</div>
-                    <div className="mb-3">Tags</div>
-                    <div className="mb-3">Competencies</div>
-                    <div className="mb-3">Description</div>
-                    <button className="btn btn-danger">SUBMIT</button>
+                    <form onSubmit={handleSubmit}>
+                      <div className="mb-3">
+                        <label className="form-label fw-bold">New Activity Name</label>
+                        <input type="text" className="form-control" name="name" value={activity.name} onChange={handleChange} required />
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label fw-bold">Tags (comma separated)</label>
+                        <input type="text" className="form-control" name="tags" value={activity.tags} onChange={handleChange} />
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label fw-bold">Competencies (comma separated)</label>
+                        <input type="text" className="form-control" name="competencies" value={activity.competencies} onChange={handleChange} />
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label fw-bold">Description</label>
+                        <textarea className="form-control" name="description" value={activity.description} onChange={handleChange} rows={3} />
+                      </div>
+                      <button className="btn btn-danger" type="submit" disabled={submitting}>
+                        {submitting ? 'Submitting, please wait' : 'SUBMIT'}
+                      </button>
+                      {submitMsg && <div className="mt-3 text-success">{submitMsg}</div>}
+                    </form>
                   </div>
                 </div>
               </div>
               <div className="col-lg-4">
                 <div className="card mb-5" style={{ minHeight: '450px', paddingBottom: '48px', border: 'none', borderRadius: '12px' }}>
-                  <div className="card-header bg-primary text-white" style={{ fontSize: '1.5rem', fontWeight: '500', letterSpacing: '1px', borderTopLeftRadius: '12px', borderTopRightRadius: '12px' }}>Admin Tools</div>
-                  <div className="card-body" style={{ background: '#E7E7E7', minHeight: '220px', margin: '24px', overflowY: 'auto', borderRadius: '8px' }}>
-                    {/* Admin tools or info goes here */}
+                  <div className="card-header bg-primary text-white" style={{ fontSize: '1.5rem', fontWeight: '500', letterSpacing: '1px', borderTopLeftRadius: '12px', borderTopRightRadius: '12px' }}>Delete Activities</div>
+                  <div className="card-body" style={{ background: '#E7E7E7', minHeight: '220px', margin: '24px', borderRadius: '8px', padding: 0 }}>
+                    <div style={{ height: '350px', overflowY: 'auto', background: '#f5f5f5', borderRadius: '8px', boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.08)', margin: 0, padding: 16 }}>
+                      {loadingActivities ? (
+                        <div>Loading activities...</div>
+                      ) : activities.length === 0 ? (
+                        <div>No activities found.</div>
+                      ) : (
+                        activities.map(act => (
+                          <div key={act.activity_id} className="d-flex align-items-center justify-content-between mb-2" style={{ background: '#fff', borderRadius: 6, padding: '8px 12px', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
+                            <span>{act.name}</span>
+                            <button className="btn btn-sm btn-danger" disabled={deletingId === act.activity_id} onClick={() => handleDeleteActivity(act.activity_id)}>
+                              {deletingId === act.activity_id ? 'Deleting...' : 'Delete'}
+                            </button>
+                          </div>
+                        ))
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

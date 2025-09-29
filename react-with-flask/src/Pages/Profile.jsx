@@ -1,27 +1,28 @@
 import React from "react";
 import "./Dashboard.css";
 import image2 from "../assets/LogInBackground.png";
-// import { UserContext } from "../UserContext.jsx"; // No longer used
 
 export const ProfilePage = () => {
-  // Cookie-based login check
   function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(';').shift();
     return null;
   }
-  React.useEffect(() => {
-    if (getCookie('logged_in') !== 'true') {
-      window.location.href = "/login";
-    }
-  }, []);
+
   const user = {
     email: getCookie('user_email'),
     first_name: getCookie('user_first_name'),
     last_name: getCookie('user_last_name'),
     user_id: getCookie('user_id')
   };
+
+  React.useEffect(() => {
+    if (getCookie('logged_in') !== 'true') {
+      window.location.href = "/login";
+    }
+  }, []);
+
   return (
     <div style={{ minHeight: "100vh", width: "100vw", background: "#ECECEC", overflowY: "auto", overflowX: "hidden", position: "relative" }}>
       <div className="dashboard-top-bg" style={{ position: "absolute", left: "var(--sidebar-width, 0px)", width: "100%", height: "500px" }}>
@@ -96,7 +97,7 @@ export const ProfilePage = () => {
                 <div className="card mb-5" style={{ minHeight: '450px', paddingBottom: '48px', border: 'none', borderRadius: '12px' }}>
                   <div className="card-header bg-primary text-white" style={{ fontSize: '1.5rem', fontWeight: '500', letterSpacing: '1px', borderTopLeftRadius: '12px', borderTopRightRadius: '12px' }}>Profile Actions</div>
                   <div className="card-body" style={{ background: '#E7E7E7', minHeight: '220px', margin: '24px', overflowY: 'auto', borderRadius: '8px' }}>
-                    {/* Profile actions or info goes here */}
+
                   </div>
                 </div>
               </div>

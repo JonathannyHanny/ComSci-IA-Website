@@ -1,27 +1,28 @@
 import React from "react";
 import "./Dashboard.css";
 import image2 from "../assets/LogInBackground.png";
-// import { UserContext } from "../UserContext.jsx"; // No longer used
 
 export const SettingsPage = () => {
-  // Cookie-based login check
   function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(';').shift();
     return null;
   }
-  React.useEffect(() => {
-    if (getCookie('logged_in') !== 'true') {
-      window.location.href = "/login";
-    }
-  }, []);
+
   const user = {
     email: getCookie('user_email'),
     first_name: getCookie('user_first_name'),
     last_name: getCookie('user_last_name'),
     user_id: getCookie('user_id')
   };
+
+  React.useEffect(() => {
+    if (getCookie('logged_in') !== 'true') {
+      window.location.href = "/login";
+    }
+  }, []);
+
   function handleLogout() {
     document.cookie = 'logged_in=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     document.cookie = 'user_email=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
@@ -30,6 +31,7 @@ export const SettingsPage = () => {
     document.cookie = 'user_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     window.location.href = '/login';
   }
+
   return (
     <div style={{ minHeight: "100vh", width: "100vw", background: "#ECECEC", overflowY: "auto", overflowX: "hidden", position: "relative" }}>
       <div className="dashboard-top-bg" style={{ position: "absolute", left: "var(--sidebar-width, 0px)", width: "100%", height: "500px" }}>
@@ -95,7 +97,7 @@ export const SettingsPage = () => {
                 <div className="card mb-5" style={{ minHeight: '450px', paddingBottom: '48px', border: 'none', borderRadius: '12px' }}>
                   <div className="card-header bg-primary text-white" style={{ fontSize: '1.5rem', fontWeight: '500', letterSpacing: '1px', borderTopLeftRadius: '12px', borderTopRightRadius: '12px' }}>Account Settings</div>
                   <div className="card-body" style={{ background: '#E7E7E7', height: '220px', margin: '24px', overflowY: 'auto', borderRadius: '8px' }}>
-                    {/* Settings content goes here */}
+
                     <div className="mb-3">Email: {user ? user.email : "(not logged in)"}</div>
                     <div className="mb-3">Name: {user && (user.first_name || user.last_name) ? `${user.first_name || "DebugFirst"} ${user.last_name || "DebugLast"}` : "FNAME LNAME (debug)"}</div>
                     <button onClick={handleLogout} style={{ marginTop: 16, background: "#E85C5C", color: "#fff", border: "none", borderRadius: 6, padding: "10px 24px", fontWeight: "500" }}>Log Out</button>
@@ -106,7 +108,7 @@ export const SettingsPage = () => {
                 <div className="card mb-5" style={{ minHeight: '450px', paddingBottom: '48px', border: 'none', borderRadius: '12px' }}>
                   <div className="card-header bg-primary text-white" style={{ fontSize: '1.5rem', fontWeight: '500', letterSpacing: '1px', borderTopLeftRadius: '12px', borderTopRightRadius: '12px' }}>Preferences</div>
                   <div className="card-body" style={{ background: '#E7E7E7', height: '220px', margin: '24px', overflowY: 'auto', borderRadius: '8px' }}>
-                    {/* Preferences content goes here */}
+
                   </div>
                 </div>
               </div>
