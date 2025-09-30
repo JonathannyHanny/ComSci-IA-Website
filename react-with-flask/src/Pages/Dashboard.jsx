@@ -22,6 +22,7 @@ export const DashboardPage = () => {
   const [loadingActivities, setLoadingActivities] = React.useState(true);
   const [filterType, setFilterType] = React.useState('Alphabetical');
   const [search, setSearch] = React.useState('');
+  const [signedUpActivityIds, setSignedUpActivityIds] = React.useState([]);
 
   React.useEffect(() => {
     if (getCookie('logged_in') !== 'true') {
@@ -44,7 +45,21 @@ export const DashboardPage = () => {
     fetchActivities();
   }, []);
 
-  // Filter and sort activities
+  // Fetch signed up activities for the user
+  React.useEffect(() => {
+    async function fetchSignedUp() {
+      if (!user.user_id) return;
+      try {
+        const res = await fetch(`/api/user/${user.user_id}/activities`);
+        if (res.ok) {
+          const data = await res.json();
+          setSignedUpActivityIds(data.activity_ids || []);
+        }
+      } catch {}
+    }
+    fetchSignedUp();
+  }, [user.user_id]);
+
   const filteredActivities = React.useMemo(() => {
     let acts = [...activities];
     if (search) {
@@ -53,7 +68,6 @@ export const DashboardPage = () => {
     if (filterType === 'Alphabetical') {
       acts.sort((a, b) => a.name.localeCompare(b.name));
     }
-    // Other filter types can be added here
     return acts;
   }, [activities, search, filterType]);
 
@@ -128,7 +142,14 @@ export const DashboardPage = () => {
         <div className="container-fluid">
           <div className="row mb-4">
             <div className="col-lg-12">
-              <h1 style={{ color: "#fff", fontWeight: "bold", fontSize: 65, margin: "32px 0 24px 80px", letterSpacing: 2 }}>DashBoard</h1>
+              {(() => {
+                const collapsed = typeof window !== 'undefined' && window.innerWidth <= 600;
+                return (
+                  <h1 style={{ color: "#fff", fontWeight: "bold", fontSize: 65, margin: "32px 0 24px 0", letterSpacing: 2 }}>
+                    {collapsed ? 'Dash Board' : 'DashBoard'}
+                  </h1>
+                );
+              })()}
             </div>
           </div>
           <div className="row mb-7">
@@ -136,7 +157,6 @@ export const DashboardPage = () => {
               <div className="card mb-5" style={{ minHeight: '450px', paddingBottom: '48px', border: 'none', borderRadius: '12px' }}>
                 <div className="card-header bg-primary text-white" style={{ fontSize: '1.5rem', fontWeight: '500', letterSpacing: '1px', borderTopLeftRadius: '12px', borderTopRightRadius: '12px' }}>Top Picks</div>
                 <div className="card-body" style={{ background: '#E7E7E7', height: '220px', margin: '24px', overflowY: 'auto', borderRadius: '8px' }}>
-                  {/* Scrollable inset for Top Picks */}
                 </div>
               </div>
             </div>
@@ -144,7 +164,6 @@ export const DashboardPage = () => {
               <div className="card mb-5" style={{ minHeight: '450px', paddingBottom: '48px', border: 'none', borderRadius: '12px' }}>
                 <div className="card-header bg-primary text-white" style={{ fontSize: '1.5rem', fontWeight: '500', letterSpacing: '1px', borderTopLeftRadius: '12px', borderTopRightRadius: '12px' }}>Your Activities</div>
                 <div className="card-body" style={{ background: '#E7E7E7', height: '220px', margin: '24px', overflowY: 'auto', borderRadius: '8px' }}>
-                  {/* Scrollable inset for Your Activities */}
                 </div>
               </div>
             </div>
@@ -169,8 +188,8 @@ export const DashboardPage = () => {
                     </div>
                   </div>
                 </div>
-                <div className="card-body" style={{ background: '#E7E7E7', height: '220px', margin: '24px', marginTop: '32px', overflowY: 'auto', borderRadius: '8px', padding: 0 }}>
-                  <div style={{ height: '180px', overflowY: 'auto', background: '#f5f5f5', borderRadius: '8px', boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.08)', margin: 0, padding: 16 }}>
+                <div className="card-body" style={{ background: '#E7E7E7', height: '220px', margin: '24px', marginTop: '-10px', overflowY: 'auto', borderRadius: '8px', padding: 0 }}>
+                  <div style={{ height: '220px', overflowY: 'auto', background: '#f5f5f5', borderRadius: '8px', boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.08)', margin: 0, padding: 16 }}>
                     {loadingActivities ? (
                       <div>Loading activities...</div>
                     ) : filteredActivities.length === 0 ? (
@@ -190,6 +209,40 @@ export const DashboardPage = () => {
                               <span style={{ fontWeight: 500 }}>Competencies:</span> {act.competencies.join(', ')}
                             </div>
                           )}
+                          <div className="d-flex justify-content-end mt-2">
+                            {signedUpActivityIds.includes(act.activity_id) ? (
+                              <button className="btn btn-success btn-sm" disabled>Signed Up</button>
+                            ) : (
+                              <button
+                                className="btn btn-primary btn-sm"
+                                disabled={act.signingUp}
+                                onClick={async () => {
+                                  const userId = user.user_id;
+                                  if (!userId) return;
+                                  act.signingUp = true;
+                                  try {
+                                    const res = await fetch(`/api/activities/${act.activity_id}/signup`, {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ user_id: userId })
+                                    });
+                                    if (res.ok) {
+                                      setSignedUpActivityIds(ids => [...ids, act.activity_id]);
+                                      alert('Signed up!');
+                                    } else {
+                                      const data = await res.json();
+                                      alert(data.error || 'Error signing up');
+                                    }
+                                  } catch {
+                                    alert('Server error');
+                                  }
+                                  act.signingUp = false;
+                                }}
+                              >
+                                Sign Up
+                              </button>
+                            )}
+                          </div>
                         </div>
                       ))
                     )}

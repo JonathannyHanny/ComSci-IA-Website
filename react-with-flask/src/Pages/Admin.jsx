@@ -94,7 +94,17 @@
     // Delete activity handler (API not yet implemented)
     async function handleDeleteActivity(id) {
       setDeletingId(id);
-      // TODO: Call DELETE API, then refresh list
+      try {
+        const res = await fetch(`/api/activities/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          setActivities(acts => acts.filter(a => a.activity_id !== id));
+        } else {
+          const data = await res.json();
+          alert(data.error || 'Error deleting activity');
+        }
+      } catch {
+        alert('Server error');
+      }
       setDeletingId(null);
     }
   return (
@@ -154,7 +164,7 @@
           <div className="container-fluid">
             <div className="row mb-4">
               <div className="col-lg-12">
-                <h1 style={{ color: "#fff", fontWeight: "bold", fontSize: 56, margin: "32px 0 24px 80px", letterSpacing: 2 }}>Admin</h1>
+                <h1 style={{ color: "#fff", fontWeight: "bold", fontSize: 56, margin: "32px 0 24px 0", letterSpacing: 2 }}>Admin</h1>
               </div>
             </div>
             <div className="row mb-7">

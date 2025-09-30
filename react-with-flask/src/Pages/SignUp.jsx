@@ -76,7 +76,7 @@ export const SignUpPage = () => {
             <span className="fw-bold fs-1" style={{ color: "#212529" }}>Class</span>
             <span className="fw-bold fs-1" style={{ color: "#ff5f57" }}>Beyond</span>
           </div>
-          <h3 className="mb-5 text-start" style={{ marginLeft: 115 }}>Sign Up</h3>
+          <h3 className="mb-5 text-start">Sign Up</h3>
           <div className="text-muted mb-2 text-start" style={{ marginLeft: 115 }}>Welcome to ClassBeyond!</div>
           <form onSubmit={handleSignUp}>
             <div className="d-flex flex-column align-items-center">

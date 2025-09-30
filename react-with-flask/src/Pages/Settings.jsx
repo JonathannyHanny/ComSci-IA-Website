@@ -89,7 +89,7 @@ export const SettingsPage = () => {
           <div className="container-fluid">
             <div className="row mb-4">
               <div className="col-lg-12">
-                <h1 style={{ color: "#fff", fontWeight: "bold", fontSize: 56, margin: "32px 0 24px 80px", letterSpacing: 2 }}>Settings</h1>
+                <h1 style={{ color: "#fff", fontWeight: "bold", fontSize: 56, margin: "32px 0 24px 0", letterSpacing: 2 }}>Settings</h1>
               </div>
             </div>
             <div className="row mb-7">
