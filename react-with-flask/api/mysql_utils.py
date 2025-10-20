@@ -34,6 +34,13 @@ def signup_for_activity(user_id, activity_id):
             conn.commit()
     return True
 
+def remove_signup_for_activity(user_id, activity_id):
+    with get_mysql_connection() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute("DELETE FROM user_activities WHERE user_id = %s AND activity_id = %s", (user_id, activity_id))
+            conn.commit()
+    return True
+
 def delete_activity(activity_id):
     
     with get_mysql_connection() as conn:

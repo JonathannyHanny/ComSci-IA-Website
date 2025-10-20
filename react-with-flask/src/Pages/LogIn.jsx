@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import image2 from "../assets/LogInBackground.png";
+import { colors, authCard, authBrand, authHeading, authInput, authButton } from '../components/styles';
+import AuthBackground from '../components/AuthBackground';
 
 export const LogInPage = () => {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -40,32 +42,17 @@ export const LogInPage = () => {
   }
 
   return (
-    <div
-      className="min-vh-100 position-relative"
-      style={{
-        backgroundImage: `url(${image2})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        width: "100vw",
-        height: "100vh",
-        overflow: "hidden"
-      }}
-    >
-      <div
-        className="d-flex align-items-stretch justify-content-end"
-        style={{ height: "100vh", width: "100vw", position: "absolute", top: 0, left: 0 }}
-      >
-        <div
-          className="card p-4 shadow d-flex flex-column justify-content-center rounded-0"
-          style={{ maxWidth: 550, width: "100%", height: "100vh", background: "rgba(255,255,255,0.975)", borderRadius: "1rem 0 0 1rem" }}
-        >
-          <div className="mb-2 text-start" style={{ marginLeft: 115 }}>
-            <span className="fw-bold fs-1" style={{ color: "#212529" }}>Class</span>
-            <span className="fw-bold fs-1" style={{ color: "#ff5f57" }}>Beyond</span>
+    <AuthBackground image={image2}>
+      <div className="d-flex align-items-stretch justify-content-end" style={{ height: '100vh', width: '100vw', position: 'absolute', top: 0, left: 0 }}>
+        <div className="card p-4 shadow d-flex flex-column justify-content-center rounded-0" style={authCard}>
+          <div className="mb-2 text-start" style={authBrand}>
+            <span className="fw-bold fs-1" style={{ color: '#212529' }}>Class</span>
+            <span className="fw-bold fs-1" style={{ color: '#ff5f57' }}>Beyond</span>
           </div>
-          <h3 className="mb-5 text-start" style={{ marginLeft: 115 }}>Log In</h3>
-          <div className="text-muted mb-2 text-start" style={{ marginLeft: 115 }}>Welcome back to ClassBeyond!</div>
+          <div style={authBrand}>
+            <h2 style={authHeading}>Log In</h2>
+            <div className="text-muted mb-2 text-start">Welcome back to ClassBeyond!</div>
+          </div>
           <form onSubmit={handleLogin}>
             <div className="d-flex flex-column align-items-center">
               <div className="mb-3 w-100 d-flex justify-content-center">
@@ -77,7 +64,7 @@ export const LogInPage = () => {
                   value={form.email}
                   onChange={handleChange}
                   required
-                  style={{ maxWidth: 270, height: "5vh" }}
+                  style={authInput}
                 />
               </div>
               <div className="mb-3 w-100 d-flex justify-content-center">
@@ -89,17 +76,10 @@ export const LogInPage = () => {
                   value={form.password}
                   onChange={handleChange}
                   required
-                  style={{ maxWidth: 270, height: "5vh" }}
+                  style={authInput}
                 />
               </div>
-              <button
-                type="submit"
-                className="btn mb-2"
-                style={{ maxWidth: 270, width: "100%", height: "5vh", backgroundColor: "#5CA4E8", color: "#fff", border: "none" }}
-                disabled={loggingIn}
-              >
-                {loggingIn ? 'Logging in, please wait' : 'Log In'}
-              </button>
+              <button type="submit" className="btn mb-2" style={authButton} disabled={loggingIn}>{loggingIn ? 'Logging in, please wait' : 'Log In'}</button>
             </div>
           </form>
           {error && <div className="alert alert-danger mt-2">{error}</div>}
@@ -109,16 +89,6 @@ export const LogInPage = () => {
           </div>
         </div>
       </div>
-      <div
-        style={{
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          width: "100vw",
-          height: "35px",
-          background: "rgba(236, 236, 236, 1)"
-        }}
-      />
-    </div>
+    </AuthBackground>
   );
 };

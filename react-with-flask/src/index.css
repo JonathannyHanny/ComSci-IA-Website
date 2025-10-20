@@ -1,4 +1,14 @@
 :root {
+  --color-primary: #39498b;
+  --color-sidebar-bg: rgb(21,34,89);
+  --color-sidebar-btn: #3A498B;
+  --color-danger: rgb(255,95,87);
+  --color-accent: #ff5f57;
+  --color-blue: #5CA4E8;
+  --color-blue-dark: #0056b3;
+  --color-page-bg: #ECECEC;
+  --color-card-bg: #E7E7E7;
+
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -15,7 +25,7 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: var(--color-primary);
   text-decoration: inherit;
 }
 a:hover {
@@ -47,7 +57,7 @@ button {
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: var(--color-primary);
 }
 button:focus,
 button:focus-visible {
@@ -60,7 +70,7 @@ button:focus-visible {
     background-color: #ffffff;
   }
   a:hover {
-    color: #747bff;
+    color: var(--color-primary);
   }
   button {
     background-color: #f9f9f9;

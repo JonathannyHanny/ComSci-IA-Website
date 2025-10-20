@@ -5,7 +5,7 @@ from flask import Flask, send_from_directory, jsonify, request
 from werkzeug.security import check_password_hash
 from mysql_utils import (
     get_all_activities, create_user, get_user_by_email, create_activity,
-    signup_for_activity, delete_activity, get_user_activity_ids
+    signup_for_activity, delete_activity, get_user_activity_ids, remove_signup_for_activity
 )
 
  
@@ -52,6 +52,19 @@ def signup_activity(activity_id):
         return jsonify({'error': 'User ID required'}), 400
     try:
         signup_for_activity(user_id, activity_id)
+        return jsonify({'success': True}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/activities/<int:activity_id>/signup', methods=['DELETE'])
+def unsign_activity(activity_id):
+    data = request.get_json() or {}
+    user_id = data.get('user_id') or request.args.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'User ID required'}), 400
+    try:
+        remove_signup_for_activity(int(user_id), activity_id)
         return jsonify({'success': True}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
