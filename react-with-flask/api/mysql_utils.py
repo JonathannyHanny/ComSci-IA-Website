@@ -1,6 +1,20 @@
  
+"""MySQL helper utilities for the Flask API.
+
+This module contains simple helpers for reading and mutating rows in the
+demo application's schema (users, activities, tags, competencies). The
+functions deliberately keep implementation details simple; in a larger
+project you would typically use connection pooling and more robust
+transaction/exception handling.
+"""
+
+
 def get_user_activity_ids(user_id):
-    
+    """Fetch activity ids for a user.
+
+    Returns a plain list of integer activity ids the user has signed up to.
+    """
+
     with get_mysql_connection() as conn:
         with conn.cursor() as cursor:
             cursor.execute("SELECT activity_id FROM user_activities WHERE user_id = %s", (user_id,))
@@ -14,7 +28,12 @@ from werkzeug.security import generate_password_hash
 
  
 def get_mysql_connection():
-    
+    """Create and return a MySQL connection.
+
+    NOTE: credentials are currently hard-coded. Move these to environment
+    variables or a configuration system before deploying.
+    """
+
     return mysql.connector.connect(
         host="beyondclass.site",
         user="jonathan_Jonathan",
@@ -24,7 +43,11 @@ def get_mysql_connection():
 
  
 def signup_for_activity(user_id, activity_id):
-    
+    """Insert a user/activity signup row.
+
+    Uses INSERT IGNORE so repeated calls won't raise duplicate-key errors.
+    """
+
     with get_mysql_connection() as conn:
         with conn.cursor() as cursor:
             cursor.execute(
@@ -35,6 +58,10 @@ def signup_for_activity(user_id, activity_id):
     return True
 
 def remove_signup_for_activity(user_id, activity_id):
+    """Delete a user activity signup.
+
+    Removes any rows matching the given user_id/activity_id pair.
+    """
     with get_mysql_connection() as conn:
         with conn.cursor() as cursor:
             cursor.execute("DELETE FROM user_activities WHERE user_id = %s AND activity_id = %s", (user_id, activity_id))
@@ -42,6 +69,11 @@ def remove_signup_for_activity(user_id, activity_id):
     return True
 
 def delete_activity(activity_id):
+    """Delete an activity and all related rows.
+
+    Deletes signups, tag relations and competency relations before
+    removing the activity row itself.
+    """
     
     with get_mysql_connection() as conn:
         with conn.cursor() as cursor:
@@ -53,7 +85,13 @@ def delete_activity(activity_id):
     return True
 
 def get_all_activities():
-    
+    """Return all activities and attach tags and competencies.
+
+    The implementation currently queries tags/competencies per-activity
+    which is fine for small datasets; consider batching or using SQL
+    aggregation to improve performance for larger data.
+    """
+
     with get_mysql_connection() as conn:
         with conn.cursor(dictionary=True) as cursor:
             cursor.execute("SELECT activity_id, name, description FROM activities ORDER BY name ASC")
@@ -81,6 +119,11 @@ def get_all_activities():
 
  
 def get_or_create_tag(tag_name, conn, cursor):
+    """Return tag_id for tag_name, inserting the tag if necessary.
+
+    This helper is used inside create_activity where a transaction is
+    already in progress (same conn/cursor).
+    """
     
     cursor.execute("SELECT tag_id FROM tags WHERE tag_name = %s", (tag_name,))
     row = cursor.fetchone()
@@ -91,6 +134,7 @@ def get_or_create_tag(tag_name, conn, cursor):
     return cursor.lastrowid
 
 def get_or_create_competency(competency_name, conn, cursor):
+    """Like get_or_create_tag but for competencies."""
     
     cursor.execute("SELECT competency_id FROM competencies WHERE competency_name = %s", (competency_name,))
     row = cursor.fetchone()
@@ -101,7 +145,11 @@ def get_or_create_competency(competency_name, conn, cursor):
     return cursor.lastrowid
 
 def create_activity(name, description, tags, competencies):
-    
+    """Create a new activity row and link tags/competencies.
+
+    The function returns the new activity_id.
+    """
+
     with get_mysql_connection() as conn:
         with conn.cursor() as cursor:
             cursor.execute("INSERT INTO activities (name, description) VALUES (%s, %s)", (name, description))
@@ -117,7 +165,11 @@ def create_activity(name, description, tags, competencies):
 
  
 def create_user(email, password, first_name, last_name):
-    
+    """Create a new user and persist a hashed password.
+
+    Raises ValueError if the email is already registered.
+    """
+
     with get_mysql_connection() as conn:
         with conn.cursor() as cursor:
             cursor.execute("SELECT user_id FROM users WHERE email = %s", (email,))
@@ -137,7 +189,11 @@ def create_user(email, password, first_name, last_name):
     return user_id
 
 def get_user_by_email(email):
-    
+    """Lookup a user and join with the user_auth table.
+
+    Returns a dict (user_id, email, password_hash, first_name, last_name) or None.
+    """
+
     with get_mysql_connection() as conn:
         with conn.cursor(dictionary=True) as cursor:
             cursor.execute(

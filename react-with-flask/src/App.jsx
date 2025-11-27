@@ -1,3 +1,6 @@
+// Top-level router and route definitions for the single-page app.
+// Each route maps to a page component. This file keeps routing simple
+// and declarative for development usage.
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LogInPage } from "./Pages/LogIn";

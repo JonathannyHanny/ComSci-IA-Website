@@ -1,3 +1,6 @@
+// PageLayout provides the app chrome (Sidebar + Background) and a
+// content area where pages render their UI. It also handles a simple
+// responsive collapse behaviour for the sidebar.
 import React from 'react';
 import Sidebar from './Sidebar';
 import Background from './Background';

@@ -1,3 +1,5 @@
+// Settings page — small account settings area (logout) and preferences.
+// Uses cookie operations for demo purposes only.
 import React from "react";
 import Sidebar from '../components/Sidebar';
 import CardHeader from '../components/CardHeader';

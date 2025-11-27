@@ -1,3 +1,6 @@
+// Log-in page. Maintains local form state and sets simple cookies on
+// successful login. This demo stores user info in non-HttpOnly cookies
+// which is acceptable for a prototype but not recommended for production.
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import image2 from "../assets/LogInBackground.png";
@@ -21,7 +24,7 @@ export const LogInPage = () => {
     try {
       const response = await fetch("/api/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "ap0plication/json" },
         body: JSON.stringify(form)
       });
       const data = await response.json();

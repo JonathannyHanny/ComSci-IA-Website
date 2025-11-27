@@ -1,3 +1,10 @@
+
+// Sidebar navigation component used by the main app layout.
+// Props:
+// - user: object with user metadata used for display
+// - isCollapsed: boolean, when true the sidebar shows collapsed view
+// - onNavigate: function called with a path string when a button is clicked
+// - active: key for the currently active route (used to disable the active button)
 import React from 'react';
 
 import { colors } from './styles';

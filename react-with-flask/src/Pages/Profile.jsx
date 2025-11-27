@@ -1,3 +1,5 @@
+// Profile page — shows the current user's profile information. Uses simple
+// cookie-based auth checks and the shared Page layout components.
 import React from "react";
 import Sidebar from '../components/Sidebar';
 import CardHeader from '../components/CardHeader';

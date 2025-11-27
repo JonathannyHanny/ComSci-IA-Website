@@ -1,3 +1,5 @@
+// Sign-up page and form. Handles local form state, client-side
+// validation (passwords match) and submits registration requests to the API.
 import React, { useState } from "react";
 import image2 from "../assets/LogInBackground.png";
 import { Link } from "react-router-dom";
@@ -50,6 +52,7 @@ export const SignUpPage = () => {
     } catch (err) {
       setError("Unknown error");
     }
+    // Reset the busy flag so UI becomes interactive again
     setSigningUp(false);
   }
 

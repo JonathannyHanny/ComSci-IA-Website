@@ -1,3 +1,5 @@
+// ESLint configuration – keeps the project readable and consistent.
+// Focuses on recommended rules and React plugin support used by Vite.
 import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'

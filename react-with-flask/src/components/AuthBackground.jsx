@@ -1,3 +1,6 @@
+// AuthBackground is a page-level wrapper used by authentication pages
+// (Log in / Sign up). It renders the background image with a subtle
+// dark overlay so auth cards are readable.
 import React from 'react';
 import image2 from '../assets/LogInBackground.png';
 import { colors } from './styles';

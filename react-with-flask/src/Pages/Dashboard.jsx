@@ -1,15 +1,18 @@
+// Dashboard page — lists available activities and shows the user's signed
+// up activities. Manages in-flight request state (signingUpId, unsigningId)
+// so the UI can disable buttons while requests are pending.
 import React from 'react';
 import PageLayout from '../components/PageLayout';
 import CardHeader from '../components/CardHeader';
 import { getCookie } from '../utils/cookies';
-import { colors, mainPanel, card, cardBody, header, cardBodyInner, activityItem, signedUpActivityItem, signedUpActivityName, signedUpActivityDesc, activityName, activityDesc, activityTags, activityCompetencies, tagLabel } from '../components/styles';
+import { colors, mainPanel, card, cardBody, header, activityItem, signedUpActivityItem, signedUpActivityName, signedUpActivityDesc, activityName, activityDesc, activityTags, activityCompetencies, tagLabel } from '../components/styles';
 
 const styles = {
   mainPanel,
   dashboardHeader: header,
   card,
   cardBodyOuter: cardBody,
-  cardBodyInner,
+  cardBody,
   signedUpActivityItem,
   signedUpActivityName,
   signedUpActivityDesc,
@@ -35,6 +38,7 @@ export const DashboardPage = () => {
   React.useEffect(() => { if (getCookie('logged_in') !== 'true') window.location.href = '/login'; }, []);
 
   React.useEffect(() => {
+    // Load activities from the API. The list is stored in `activities`.
     const fetchActivities = async () => {
       setLoadingActivities(true);
       try {
@@ -70,6 +74,8 @@ export const DashboardPage = () => {
 
   const signedUpActivities = React.useMemo(() => signedUpActivityIds.map(id => activities.find(a => a.activity_id === id)).filter(Boolean), [signedUpActivityIds, activities]);
 
+  // Sign-up helper used by the activity buttons. Tracks signingUpId to
+  // prevent duplicate requests for the same activity.
   const handleSignUp = async (activityId) => {
     if (!user.user_id) return;
     setSigningUpId(activityId);
@@ -80,6 +86,8 @@ export const DashboardPage = () => {
     setSigningUpId(null);
   };
 
+  // Cancel a user's signup for the given activity. Tracks unsigningId
+  // so the individual button shows an appropriate busy state.
   const handleUnsign = async (activityId) => {
     if (!user.user_id) return;
     setUnsigningId(activityId);
@@ -110,7 +118,7 @@ export const DashboardPage = () => {
           <div className="card mb-5" style={styles.card}>
             <CardHeader>Top Picks</CardHeader>
             <div className="card-body" style={styles.cardBodyOuter}>
-              <div style={styles.cardBodyInner}>Top picks will appear here.</div>
+              <div style={{padding: '16px', maxHeight: 300, overflowY: 'auto' }}>Top picks will appear here.</div>
             </div>
           </div>
         </div>
@@ -119,7 +127,7 @@ export const DashboardPage = () => {
           <div className="card mb-5" style={styles.card}>
             <CardHeader>Your Activities</CardHeader>
             <div className="card-body" style={styles.cardBodyOuter}>
-              <div style={styles.cardBodyInner}>
+              <div style={{ maxHeight: 260, overflowY: 'auto' }}>
                 {loadingActivities ? (
                   <div>Loading your activities...</div>
                 ) : signedUpActivities.length === 0 ? (
@@ -162,7 +170,7 @@ export const DashboardPage = () => {
               </div>
             </div>
             <div className="card-body" style={{ ...styles.cardBodyOuter, marginTop: '-10px', padding: 0 }}>
-              <div style={styles.cardBodyInner}>
+              <div style={{padding: '16px', maxHeight: 520, overflowY: 'auto' }}>
                 {loadingActivities ? <div>Loading activities...</div> : filteredActivities.length === 0 ? <div>No activities found.</div> : filteredActivities.map(act => (
                   <div key={act.activity_id} style={styles.activityItem}>
                     <div style={styles.activityName}>{act.name}</div>
