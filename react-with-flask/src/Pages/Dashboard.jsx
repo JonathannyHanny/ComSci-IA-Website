@@ -130,7 +130,7 @@ export const DashboardPage = () => {
         acts = acts.filter(a => recIds.has(a.activity_id));
         acts.sort((a, b) => getActivityScore(b.activity_id) - getActivityScore(a.activity_id));
       } else {
-        acts = [];
+        acts = []; // No recommendations available
       }
     } else if (filterType === 'What people like you enjoy') {
       const recs = (recommendations && recommendations.collaborative && recommendations.collaborative.length) ? recommendations.collaborative : [];
@@ -139,7 +139,7 @@ export const DashboardPage = () => {
         acts = acts.filter(a => recIds.has(a.activity_id));
         acts.sort((a, b) => getActivityScore(b.activity_id) - getActivityScore(a.activity_id));
       } else {
-        acts = [];
+        acts = []; // No recommendations available
       }
     } else if (filterType === 'Try something new') {
       const recs = (recommendations && recommendations.reverse && recommendations.reverse.length) ? recommendations.reverse : [];
@@ -148,10 +148,10 @@ export const DashboardPage = () => {
         acts = acts.filter(a => recIds.has(a.activity_id));
         acts.sort((a, b) => getActivityScore(b.activity_id) - getActivityScore(a.activity_id));
       } else {
-        acts = []; // No reverse recommendations available
+        acts = []; // No recommendations available
       }
     } else if (filterType === 'Alphabetical') {
-      // Alphabetical is already sorted - don't do anything
+      // Alphabetical is already sorted
     } else {
       acts.sort((a, b) => getActivityScore(b.activity_id) - getActivityScore(a.activity_id));
     }

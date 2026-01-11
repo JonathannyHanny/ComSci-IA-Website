@@ -10,8 +10,8 @@ from mysql_utils import (
     get_all_users, make_user_admin, is_user_admin
 )
 from recommendations.content_based import ContentBasedRecommender
-from recommendations.collaborative_filtering import SimpleCollaborativeFiltering
-from recommendations.reverse_content_based import ReverseContentBased
+from recommendations.collaborative_filtering import CollaborativeFilteringRecommender
+from recommendations.reverse_content_based import ReverseContentBasedRecommender
 from mysql_utils import get_all_user_activities_map
 
 
@@ -67,26 +67,20 @@ def recommend_for_user(user_id):
         collaborative_rec = []
         try:
             all_user_map = get_all_user_activities_map()
-            cf = SimpleCollaborativeFiltering(all_user_map)
-            cf_ids = cf.recommend_for_user(user_id, top_n=6)
-            id_map = {a['activity_id']: a for a in activities}
-            collaborative_rec = [id_map[i] for i in cf_ids if i in id_map]
+            cfr = CollaborativeFilteringRecommender(all_user_map, items)
+            collaborative_items = cfr.recommend_for_user(user_id, top_n=6)
+            id_map_act = {a['activity_id']: a for a in activities}
+            collaborative_rec = [id_map_act.get(it['id']) for it in collaborative_items if id_map_act.get(it['id'])]
         except Exception:
             collaborative_rec = []
 
         # Reverse content-based: suggest items that share tags but feel different
         reverse_rec = []
         if user_item_ids:
-            rcb = ReverseContentBased(items)
-            from collections import Counter
-
-            cand = Counter()
-            for uid in user_item_ids:
-                for item in rcb.similar_items_by_tag_popularity(uid, top_n=10):
-                    cand[item['id']] += 1
-            most = [cid for cid, _ in cand.most_common(6)]
+            rcbr = ReverseContentBasedRecommender(items)
+            reverse_items = rcbr.recommend_for_user(user_item_ids, top_n=6)
             id_map_act = {a['activity_id']: a for a in activities}
-            reverse_rec = [id_map_act.get(i) for i in most if id_map_act.get(i)]
+            reverse_rec = [id_map_act.get(it['id']) for it in reverse_items if id_map_act.get(it['id'])]
 
         # Top picks: globally popular based on how often tags appear
         top_picks = []
