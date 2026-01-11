@@ -1,16 +1,10 @@
-
-// Sidebar navigation component used by the main app layout.
-// Props:
-// - user: object with user metadata used for display
-// - isCollapsed: boolean, when true the sidebar shows collapsed view
-// - onNavigate: function called with a path string when a button is clicked
-// - active: key for the currently active route (used to disable the active button)
 import React from 'react';
 
 import { colors } from './styles';
 
 const Sidebar = ({ user, isCollapsed, onNavigate, active = 'dashboard' }) => {
   const dynamicBtnStyle = { textAlign: isCollapsed ? 'center' : 'left' };
+  // Simple helper to keep button styling consistent and handle navigation
   const btn = (label, path, isActive) => (
     <button
       key={label}
@@ -53,7 +47,8 @@ const Sidebar = ({ user, isCollapsed, onNavigate, active = 'dashboard' }) => {
         {btn('Dashboard', '/dashboard', active === 'dashboard')}
         {btn('Profile', '/profile', active === 'profile')}
         {btn('Settings', '/settings', active === 'settings')}
-        {btn('Admin', '/admin', active === 'admin')}
+        {/* Only show admin entry for users flagged as admin */}
+        {user?.is_admin && btn('Admin', '/admin', active === 'admin')}
       </div>
     </div>
   );

@@ -1,5 +1,4 @@
-// Small, reusable header for cards that enforces the app color token.
-// Used across many pages to keep a consistent card heading style.
+//Resuable header component for cards
 import React from 'react';
 import { colors } from './styles';
 

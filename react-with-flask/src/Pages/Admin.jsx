@@ -1,281 +1,26 @@
-// Admin page — allows creating and deleting activities.
-// The page fetches activities on mount and re-fetches after a successful
-// submission, and uses a deletingId flag to prevent duplicate deletes.
 import React from "react";
 import Sidebar from '../components/Sidebar';
 import CardHeader from '../components/CardHeader';
 import { getCookie } from '../utils/cookies';
 import { colors, mainPanel, header as commonHeader, card as commonCard, formCardBody, deleteListCardBody, deleteListInner, deleteListItem } from '../components/styles';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import Background from '../components/Background';
 
-  const styles = { mainPanel, header: commonHeader, card: commonCard, formCardBody, deleteListCardBody, deleteListInner, deleteListItem };
+// Admin page - create activities, delete them, and promote users
+// Redirects non-admins to login
+
+const styles = { mainPanel, header: commonHeader, card: commonCard, formCardBody, deleteListCardBody, deleteListInner, deleteListItem };
 
 export const AdminPage = () => {
+  // get user from cookies
   const user = {
     email: getCookie('user_email'),
     first_name: getCookie('user_first_name'),
     last_name: getCookie('user_last_name'),
-    user_id: getCookie('user_id')
+    user_id: getCookie('user_id'),
+    is_admin: getCookie('user_is_admin') === 'true'
   };
 
+  // form state
   const [activity, setActivity] = React.useState({
     name: '',
     tags: '',
@@ -285,17 +30,26 @@ export const AdminPage = () => {
   const [submitMsg, setSubmitMsg] = React.useState('');
   const [submitting, setSubmitting] = React.useState(false);
 
+  // activity list
   const [activities, setActivities] = React.useState([]);
   const [loadingActivities, setLoadingActivities] = React.useState(true);
   const [deletingId, setDeletingId] = React.useState(null);
+
   const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(false);
 
+  // user list
+  const [allUsers, setAllUsers] = React.useState([]);
+  const [loadingUsers, setLoadingUsers] = React.useState(true);
+  const [promotingId, setPromotingId] = React.useState(null);
+
+  // redirect non-admins
   React.useEffect(() => {
-    if (getCookie('logged_in') !== 'true') {
+    if (getCookie('logged_in') !== 'true' || !user.is_admin) {
       window.location.href = "/login";
     }
-  }, []);
+  }, [user.is_admin]);
 
+  // collapse sidebar on small screens
   React.useEffect(() => {
     const handleResize = () => setIsSidebarCollapsed(window.innerWidth <= 600);
     handleResize();
@@ -303,6 +57,7 @@ export const AdminPage = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // load activities (and reload after submissions)
   React.useEffect(() => {
     const fetchActivities = async () => {
       setLoadingActivities(true);
@@ -312,18 +67,34 @@ export const AdminPage = () => {
         if (res.ok) {
           setActivities(data.activities || []);
         }
-      } catch (error) {
-        console.error("Failed to fetch activities:", error);
-      }
+      } catch (error) {}
       setLoadingActivities(false);
     };
     fetchActivities();
-  }, [submitting]); // Refetch activities after a successful submission
+  }, [submitting]);
+
+  // load users for promoting
+  React.useEffect(() => {
+    const fetchUsers = async () => {
+      setLoadingUsers(true);
+      try {
+        const res = await fetch(`/api/users?user_id=${user.user_id}`);
+        const data = await res.json();
+        if (res.ok) {
+          setAllUsers(data.users || []);
+        }
+      } catch (error) {}
+
+      setLoadingUsers(false);
+    };
+    fetchUsers();
+  }, [user.user_id]);
 
   const handleChange = (e) => {
     setActivity({ ...activity, [e.target.name]: e.target.value });
   };
 
+  // submit new activity
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitMsg('');
@@ -348,11 +119,11 @@ export const AdminPage = () => {
       }
     } catch (err) {
       setSubmitMsg('Server error');
-      console.error("Submission error:", err);
     }
     setSubmitting(false);
   };
 
+  // delete activity
   const handleDeleteActivity = async (id) => {
     setDeletingId(id);
     try {
@@ -365,9 +136,46 @@ export const AdminPage = () => {
       }
     } catch (err) {
       alert('Server error');
-      console.error("Deletion error:", err);
     }
     setDeletingId(null);
+  };
+
+  // legacy promotion route
+  const handlePromoteUser = async (userId) => {
+    setPromotingId(userId);
+    try {
+      const res = await fetch(`/api/users/${userId}/admin`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+      if (res.ok) {
+        setAllUsers(users => users.map(u => u.user_id === userId ? { ...u, is_admin: true } : u));
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Error promoting user');
+      }
+    } catch (err) {
+      alert('Server error');
+    }
+    setPromotingId(null);
+  };
+
+  // secure promotion with requester check
+  const handleMakeAdmin = async (userId) => {
+    setPromotingId(userId);
+    try {
+      const res = await fetch(`/api/user/${userId}/make-admin`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ requester_id: user.user_id })
+      });
+      if (res.ok) {
+        setAllUsers(users => users.map(u => u.user_id === userId ? { ...u, is_admin: true } : u));
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Error promoting user');
+      }
+    } catch (err) {
+      alert('Server error');
+    }
+    setPromotingId(null);
   };
 
   return (
@@ -384,7 +192,9 @@ export const AdminPage = () => {
             </div>
 
             <div className="row mb-7">
+              {/* Left column: create activities + promote users */}
               <div className="col-lg-7">
+                {/* Create activity card */}
                 <div className="card mb-5" style={styles.card}>
                   <CardHeader>Make an Extracurricular</CardHeader>
                   <div className="card-body" style={styles.formCardBody}>
@@ -412,8 +222,39 @@ export const AdminPage = () => {
                     </form>
                   </div>
                 </div>
+
+                {/* Promote users to admin card */}
+                <div className="card mb-5" style={styles.card}>
+                  <CardHeader>Make User Admin</CardHeader>
+                  <div className="card-body" style={styles.deleteListCardBody}>
+                    <div style={styles.deleteListInner}>
+                      {loadingUsers ? (
+                        <div>Loading users...</div>
+                      ) : allUsers.length === 0 ? (
+                        <div>No users found.</div>
+                      ) : (
+                        allUsers.map(u => (
+                          <div key={u.user_id} className="d-flex align-items-center justify-content-between mb-2" style={styles.deleteListItem}>
+                            <div>
+                              <div className="fw-bold">{u.first_name} {u.last_name}</div>
+                              <div style={{ fontSize: '0.85em', color: '#666' }}>{u.email}</div>
+                            </div>
+                            <button 
+                              className="btn btn-sm btn-warning" 
+                              disabled={u.is_admin || promotingId === u.user_id}
+                              onClick={() => handleMakeAdmin(u.user_id)}
+                            >
+                              {u.is_admin ? 'Admin' : promotingId === u.user_id ? 'Promoting...' : 'Promote'}
+                            </button>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
 
+              {/* Right column: delete activities */}
               <div className="col-lg-4">
                 <div className="card mb-5" style={styles.card}>
                   <CardHeader>Delete Activities</CardHeader>

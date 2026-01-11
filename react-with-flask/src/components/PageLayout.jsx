@@ -9,6 +9,7 @@ import { colors, mainPanel } from './styles';
 const PageLayout = ({ user, active = 'dashboard', children }) => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(false);
   React.useEffect(() => {
+    // Collapse the sidebar on narrow screens to save space
     const handleResize = () => setIsSidebarCollapsed(window.innerWidth <= 600);
     handleResize();
     window.addEventListener('resize', handleResize);
