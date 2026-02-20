@@ -2,25 +2,26 @@ import React from "react";
 import Sidebar from '../components/Sidebar';
 import CardHeader from '../components/CardHeader';
 import { getCookie } from '../utils/cookies';
-import { colors, mainPanel, header as commonHeader, card as commonCard, formCardBody, deleteListCardBody, deleteListInner, deleteListItem } from '../components/styles';
-import Background from '../components/Background';
 
 // Admin page - create activities, delete them, and promote users
 // Redirects non-admins to login
+import { colors, mainPanel, header as commonHeader, card as commonCard, formCardBody, deleteListCardBody, deleteListInner, deleteListItem } from '../components/styles';
+import Background from '../components/Background';
 
+// Pull shared styles so the layout matches the rest of the app
 const styles = { mainPanel, header: commonHeader, card: commonCard, formCardBody, deleteListCardBody, deleteListInner, deleteListItem };
 
 export const AdminPage = () => {
-  // get user from cookies
+  // Grab the current user's info from cookies so we can verify admin access
   const user = {
     email: getCookie('user_email'),
     first_name: getCookie('user_first_name'),
     last_name: getCookie('user_last_name'),
     user_id: getCookie('user_id'),
-    is_admin: getCookie('user_is_admin') === 'true'
+    is_admin: getCookie('user_is_admin') === 'true' // cookies are strings, so convert to bool
   };
 
-  // form state
+  // Form for creating activities
   const [activity, setActivity] = React.useState({
     name: '',
     tags: '',
@@ -30,17 +31,18 @@ export const AdminPage = () => {
   const [submitMsg, setSubmitMsg] = React.useState('');
   const [submitting, setSubmitting] = React.useState(false);
 
-  // activity list
+  // Activity list state (used for the delete list)
   const [activities, setActivities] = React.useState([]);
-  const [loadingActivities, setLoadingActivities] = React.useState(true);
-  const [deletingId, setDeletingId] = React.useState(null);
+  const [loadingActivities, setLoadingActivities] = React.useState(true); // Spinner while fetching
+  const [deletingId, setDeletingId] = React.useState(null); // Which activity is being deleted
 
+  // Sidebar responsive state
   const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(false);
 
-  // user list
+  // User list state (used for promoting to admin)
   const [allUsers, setAllUsers] = React.useState([]);
-  const [loadingUsers, setLoadingUsers] = React.useState(true);
-  const [promotingId, setPromotingId] = React.useState(null);
+  const [loadingUsers, setLoadingUsers] = React.useState(true); // Spinner while fetching users
+  const [promotingId, setPromotingId] = React.useState(null); // Which user is being promoted
 
   // redirect non-admins
   React.useEffect(() => {
@@ -78,13 +80,15 @@ export const AdminPage = () => {
     const fetchUsers = async () => {
       setLoadingUsers(true);
       try {
+        // Pass current user_id so the backend can verify this requester is an admin
         const res = await fetch(`/api/users?user_id=${user.user_id}`);
         const data = await res.json();
         if (res.ok) {
           setAllUsers(data.users || []);
         }
-      } catch (error) {}
-
+      } catch (error) {
+        console.error("Failed to fetch users:", error);
+      }
       setLoadingUsers(false);
     };
     fetchUsers();
@@ -119,6 +123,7 @@ export const AdminPage = () => {
       }
     } catch (err) {
       setSubmitMsg('Server error');
+      console.error("Submission error:", err);
     }
     setSubmitting(false);
   };
@@ -215,9 +220,11 @@ export const AdminPage = () => {
                         <label className="form-label fw-bold">Description</label>
                         <textarea className="form-control" name="description" value={activity.description} onChange={handleChange} rows={3} />
                       </div>
+                      {/* Submit button shows loading text while sending */}
                       <button className="btn btn-danger" type="submit" disabled={submitting}>
                         {submitting ? 'Submitting...' : 'SUBMIT'}
                       </button>
+                      {/* Show success or error text under the button */}
                       {submitMsg && <div className={`mt-3 ${submitMsg.includes('Error') ? 'text-danger' : 'text-success'}`}>{submitMsg}</div>}
                     </form>
                   </div>
@@ -239,6 +246,7 @@ export const AdminPage = () => {
                               <div className="fw-bold">{u.first_name} {u.last_name}</div>
                               <div style={{ fontSize: '0.85em', color: '#666' }}>{u.email}</div>
                             </div>
+                            {/* Promote button shows spinner text while in progress; disabled if already admin */}
                             <button 
                               className="btn btn-sm btn-warning" 
                               disabled={u.is_admin || promotingId === u.user_id}
@@ -268,6 +276,7 @@ export const AdminPage = () => {
                         activities.map(act => (
                           <div key={act.activity_id} className="d-flex align-items-center justify-content-between mb-2" style={styles.deleteListItem}>
                             <span>{act.name}</span>
+                            {/* Delete button shows loading text for the specific activity */}
                             <button className="btn btn-sm btn-danger" disabled={deletingId === act.activity_id} onClick={() => handleDeleteActivity(act.activity_id)}>
                               {deletingId === act.activity_id ? 'Deleting...' : 'Delete'}
                             </button>

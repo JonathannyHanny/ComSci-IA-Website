@@ -25,6 +25,10 @@ export const SignUpPage = () => {
 
   // Update our form state whenever the user types in any input field
   // This keeps all the text boxes in sync with our form state
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
   // When the user clicks "Sign Up", validate their input and send it to the backend
   async function handleSignUp(e) {
     e.preventDefault(); // Don't refresh the page (default form behavior)
