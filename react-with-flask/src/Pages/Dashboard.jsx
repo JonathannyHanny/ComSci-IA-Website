@@ -119,19 +119,24 @@ export const DashboardPage = () => {
     return score;
   }, [recommendations]);
 
-  // filter activities by the dropdown selection
+  // Filter activities by the dropdown selection
   const preferenceOrderedActivities = React.useMemo(() => {
     let acts = [...filteredActivities];
     
+    // Content-based filter
     if (filterType === 'Similar to what you\'ve done') {
       const recs = (recommendations && recommendations.content && recommendations.content.length) ? recommendations.content : [];
       if (recs && recs.length > 0) {
+        // Build set of recommended activity IDs
         const recIds = new Set(recs.map(r => r.activity_id || r.id));
+        // Keep only activities that appear in content-based recommendations
         acts = acts.filter(a => recIds.has(a.activity_id));
+        // Sort by score (how many recommendation systems picked this activity)
         acts.sort((a, b) => getActivityScore(b.activity_id) - getActivityScore(a.activity_id));
       } else {
         acts = []; // No recommendations available
       }
+    // Collaborative filter
     } else if (filterType === 'What people like you enjoy') {
       const recs = (recommendations && recommendations.collaborative && recommendations.collaborative.length) ? recommendations.collaborative : [];
       if (recs && recs.length > 0) {
@@ -141,6 +146,7 @@ export const DashboardPage = () => {
       } else {
         acts = []; // No recommendations available
       }
+    // Reverse content-based filter
     } else if (filterType === 'Try something new') {
       const recs = (recommendations && recommendations.reverse && recommendations.reverse.length) ? recommendations.reverse : [];
       if (recs && recs.length > 0) {
@@ -151,8 +157,9 @@ export const DashboardPage = () => {
         acts = []; // No recommendations available
       }
     } else if (filterType === 'Alphabetical') {
-      // Alphabetical is already sorted
+      // Alphabetical is already sorted in filteredActivities
     } else {
+      // Default: sort by aggregate score across all recommendation systems
       acts.sort((a, b) => getActivityScore(b.activity_id) - getActivityScore(a.activity_id));
     }
     

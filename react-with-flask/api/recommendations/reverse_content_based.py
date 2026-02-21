@@ -1,52 +1,35 @@
-# Reverse content-based - finds activities with minimal tag/competency overlap
-# Ranks by lowest overlap count - good for "try something new" suggestions
 
-from collections import Counter
-from typing import Dict, Iterable, List, Any, Set
+#Libraries
+from typing import List, Any
+#inheritance
+from .content_based import ContentBasedRecommender, jaccard_similarity
 
+# Inherits __init__ from ContentBasedRecommender - reuses tag/competency preprocessing
+class ReverseContentBasedRecommender(ContentBasedRecommender):
 
-class ReverseContentBasedRecommender:
-    def __init__(self, activities: Iterable[Dict[str, Any]]):
-        # Build lookup tables for fast overlap checks
-        # Merge tags and competencies into one set per activity
-        self.activities: Dict[Any, Dict[str, Any]] = {activity['id']: activity for activity in activities}
-        self.activity_tags: Dict[Any, Set[str]] = {}
-        for activity in activities:
-            tags = set(activity.get('tags', []))
-            comps = set(activity.get('competencies', []))
-            self.activity_tags[activity['id']] = tags | comps
-
-    def similarity(self, activity_id: Any, candidate_id: Any) -> int:
-        # Count overlap to quantify how similar activities are
+    # Override similarity to invert Jaccard score (high similarity becomes low score)
+    def similarity(self, activity_id: Any, candidate_id: Any) -> float:
+        # Fallback: uses empty sets if an ID is missing, which returns 1.0 (max dissimilarity)
         tags_a = self.activity_tags.get(activity_id, set())
         tags_b = self.activity_tags.get(candidate_id, set())
-        return len(tags_a & tags_b)
+        # Invert Jaccard: 1.0 - similarity = dissimilarity score
+        return 1.0 - jaccard_similarity(tags_a, tags_b)
 
-    def recommend_for_activity(self, activity_id: Any, top_n: int = 10) -> List[Dict[str, Any]]:
-        # Given one activity, find other activities with the least overlap
-        if activity_id not in self.activities:
-            return []
-        scores = []
-        for candidate_id in self.activities:
-            if candidate_id == activity_id:
-                continue
-            score = self.similarity(activity_id, candidate_id)
-            scores.append((candidate_id, score))
-        scores.sort(key=lambda pair: pair[1])
-        top_ids = [candidate_id for candidate_id, _ in scores[:top_n]]
-        return [self.activities[candidate_id] for candidate_id in top_ids]
-
-    def recommend_for_user(self, user_activity_ids: Iterable[Any], top_n: int = 10) -> List[Dict[str, Any]]:
-        # Recommend by minimizing overlap with the user's existing activities
+    # Recommends activities for user by aggregating dissimilarity across all their current activities
+    def recommend_for_user(self, user_activity_ids: Any, top_n: int = 10) -> List[Any]:
         user_activities = set(user_activity_ids)
         scores = []
+        # Loop through all candidate activities
         for candidate_id in self.activities:
             if candidate_id in user_activities:
+                # Fallback: never recommend something the user already has
                 continue
-            total_overlap = 0
+            total_dissimilarity = 0
+            # Loop through user activities to sum dissimilarity scores
             for user_activity in user_activities:
-                total_overlap += self.similarity(user_activity, candidate_id)
-            scores.append((candidate_id, total_overlap))
-        scores.sort(key=lambda pair: pair[1])
+                total_dissimilarity += self.similarity(user_activity, candidate_id)
+            scores.append((candidate_id, total_dissimilarity))
+        # Reversed sort 
+        scores.sort(key=lambda pair: pair[1], reverse=True)
         top_ids = [candidate_id for candidate_id, _ in scores[:top_n]]
         return [self.activities[candidate_id] for candidate_id in top_ids]
