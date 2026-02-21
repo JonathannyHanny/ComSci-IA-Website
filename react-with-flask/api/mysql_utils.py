@@ -10,6 +10,7 @@ from werkzeug.security import generate_password_hash
 
 class DatabaseUnavailableError(RuntimeError):
     # Raised when the database connection cannot be established.
+    pass
 
 
 def get_mysql_connection():
@@ -88,30 +89,46 @@ def delete_activity(activity_id):
 def get_all_activities():
     with get_mysql_connection() as conn:
         with conn.cursor(dictionary=True) as cursor:
-            # Fetch all activities first, sorted alphabetically
+            # Fetch all activities first, alphabetically 
             cursor.execute("SELECT activity_id, name, description FROM activities ORDER BY name ASC")
             activities = cursor.fetchall()
-            # Now enrich each activity with its tags and competencies
+            
+            # Initialize empty lists for tags and competencies on each activity
             for act in activities:
-                # Query tags associated with this activity
-                cursor.execute(
-                    """
-                    SELECT t.tag_name FROM tags t
-                    JOIN activity_tags at ON t.tag_id = at.tag_id
-                    WHERE at.activity_id = %s
-                    """, (act['activity_id'],)
-                )
-                act['tags'] = [row['tag_name'] for row in cursor.fetchall()]
-
-                # Query competencies associated with this activity
-                cursor.execute(
-                    """
-                    SELECT c.competency_name FROM competencies c
-                    JOIN activity_competencies ac ON c.competency_id = ac.competency_id
-                    WHERE ac.activity_id = %s
-                    """, (act['activity_id'],)
-                )
-                act['competencies'] = [row['competency_name'] for row in cursor.fetchall()]
+                act['tags'] = []
+                act['competencies'] = []
+            
+            # Build a  lookup map
+            activity_map = {act['activity_id']: act for act in activities}
+            
+            # Fetch ALL activity-tag relationships
+            cursor.execute(
+                """
+                SELECT at.activity_id, t.tag_name 
+                FROM activity_tags at
+                JOIN tags t ON at.tag_id = t.tag_id
+                ORDER BY at.activity_id
+                """
+            )
+            # Group tags by activity_id
+            for row in cursor.fetchall():
+                if row['activity_id'] in activity_map:
+                    activity_map[row['activity_id']]['tags'].append(row['tag_name'])
+            
+            # Fetch ALL activity-competency relationships
+            cursor.execute(
+                """
+                SELECT ac.activity_id, c.competency_name
+                FROM activity_competencies ac
+                JOIN competencies c ON ac.competency_id = c.competency_id
+                ORDER BY ac.activity_id
+                """
+            )
+            # Group competencies by activity_id
+            for row in cursor.fetchall():
+                if row['activity_id'] in activity_map:
+                    activity_map[row['activity_id']]['competencies'].append(row['competency_name'])
+    
     return activities
 
 

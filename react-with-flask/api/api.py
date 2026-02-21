@@ -45,10 +45,12 @@ def list_activities():
 
 @app.route('/api/recommendations/user/<int:user_id>', methods=['GET'])
 def recommend_for_user(user_id):
-    # build recommendations using 4 systems
+    # Returns JSON with separate lists for each recommendation strategy
     try:
+        # Fetch all activities from database with their tags and competencies
         activities = get_all_activities()
 
+        # Formats activities
         activity_dicts = [
             {
                 'id': act['activity_id'],
@@ -59,53 +61,73 @@ def recommend_for_user(user_id):
             for act in activities
         ]
 
+        # Get the list of activity IDs the user is currently signed up for
         user_activity_ids = get_user_activity_ids(user_id) or []
 
-        # Content-based: find similar activities to what the user already has
+        # Algorithm 1: Content-based filtering using Jaccard similarity
         content_rec = []
         if user_activity_ids:
+            # Content-based recommender with all activities
             cbr = ContentBasedRecommender(activity_dicts)
+            # Get recommendations based on user's current activities
             content_rec = cbr.recommend_for_user(user_activity_ids, top_n=6)
+            # Map back to original activity format from database
             id_map_act = {a['activity_id']: a for a in activities}
             content_rec = [id_map_act.get(act['id']) for act in content_rec if id_map_act.get(act['id'])]
 
-        # Collaborative: look at users with overlapping signups and suggest what they liked
+        # Algorithm 2: Collaborative filtering using cosine similarity on user overlap
         collaborative_rec = []
         try:
+            # Get mapping of all users to their activity signups
             all_user_map = get_all_user_activities_map()
+            # Instantiate collaborative recommender with user-activity relationships
             cfr = CollaborativeFilteringRecommender(all_user_map, activity_dicts)
+            # Get recommendations based on similar users' preferences
             collaborative_items = cfr.recommend_for_user(user_id, top_n=6)
+            # Map back to original activity format
             id_map_act = {a['activity_id']: a for a in activities}
             collaborative_rec = [id_map_act.get(act['id']) for act in collaborative_items if id_map_act.get(act['id'])]
         except Exception:
+            # Fallback: if collaborative fails (e.g., new user with no peers), return empty list
             collaborative_rec = []
 
-        # Reverse content-based: suggest activities that share tags but feel different
+        # Algorithm 3: Reverse content-based using inverted Jaccard similarity
         reverse_rec = []
         if user_activity_ids:
+            # Instantiate reverse recommender (polymorphic with content-based)
             rcbr = ReverseContentBasedRecommender(activity_dicts)
+            # Get diverse recommendations (high dissimilarity = high score)
             reverse_items = rcbr.recommend_for_user(user_activity_ids, top_n=6)
+            # Map back to original activity format
             id_map_act = {a['activity_id']: a for a in activities}
             reverse_rec = [id_map_act.get(act['id']) for act in reverse_items if id_map_act.get(act['id'])]
 
-        # Top picks: globally popular based on how often tags appear
+        # Scores activities by how frequently their tags appear across all activities
         top_picks = []
         try:
             from collections import Counter
 
+            # Count how many times each tag appears across all activities
             tag_counter = Counter()
             for act in activity_dicts:
                 tag_counter.update(act.get('tags', []))
+            
+            # Score each activity by summing the frequencies of its tags
             activity_scores = []
             for act in activity_dicts:
                 score = sum(tag_counter.get(t, 0) for t in act.get('tags', []))
                 activity_scores.append((act['id'], score))
+            
+            # Sort by score descending (highest tag frequency first)
             activity_scores.sort(key=lambda p: p[1], reverse=True)
+            # Map top 6 scored activities back to original format
             id_map_act = {a['activity_id']: a for a in activities}
             top_picks = [id_map_act[act_id] for act_id, _ in activity_scores[:6] if act_id in id_map_act]
         except Exception:
+            # Fallback: if tag scoring fails, just return first 6 activities
             top_picks = activities[:6]
 
+        # Return all four recommendation lists in JSON response
         return jsonify({
             'top_picks': top_picks,
             'content': content_rec,
