@@ -1,15 +1,23 @@
+# Reverse content-based - finds activities with minimal tag/competency overlap
+# Ranks by lowest overlap count - good for "try something new" suggestions
 
-#Libraries
-from typing import List, Any
-#inheritance
-from .content_based import ContentBasedRecommender, jaccard_similarity
+from collections import Counter
+from typing import Dict, Iterable, List, Any, Set
 
-# Inherits __init__ from ContentBasedRecommender - reuses tag/competency preprocessing
-class ReverseContentBasedRecommender(ContentBasedRecommender):
 
-    # Override similarity to invert Jaccard score (high similarity becomes low score)
-    def similarity(self, activity_id: Any, candidate_id: Any) -> float:
-        # Fallback: uses empty sets if an ID is missing, which returns 1.0 (max dissimilarity)
+class ReverseContentBasedRecommender:
+    def __init__(self, activities: Iterable[Dict[str, Any]]):
+        # Build lookup tables for fast overlap checks
+        # Merge tags and competencies into one set per activity
+        self.activities: Dict[Any, Dict[str, Any]] = {activity['id']: activity for activity in activities}
+        self.activity_tags: Dict[Any, Set[str]] = {}
+        for activity in activities:
+            tags = set(activity.get('tags', []))
+            comps = set(activity.get('competencies', []))
+            self.activity_tags[activity['id']] = tags | comps
+
+    def similarity(self, activity_id: Any, candidate_id: Any) -> int:
+        # Count overlap to quantify how similar activities are
         tags_a = self.activity_tags.get(activity_id, set())
         tags_b = self.activity_tags.get(candidate_id, set())
         # Invert Jaccard: 1.0 - similarity = dissimilarity score

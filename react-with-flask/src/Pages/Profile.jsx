@@ -1,5 +1,4 @@
 // Profile page - shows user info (name and email)
-// Pretty simple for now
 
 import React from "react";
 import Sidebar from '../components/Sidebar';
@@ -9,7 +8,7 @@ import { colors } from '../components/styles';
 import Background from '../components/Background';
 import { mainPanel, header as commonHeader, card as commonCard, cardBody } from '../components/styles';
 
-// Grab the shared styles we use across all pages
+// Grab the shared styles use across all pages
 const styles = { mainPanel, header: commonHeader, card: commonCard, cardBody };
 
 export const ProfilePage = () => {

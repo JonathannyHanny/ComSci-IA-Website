@@ -1,5 +1,4 @@
 # Content-based recommendations using Jaccard similarity over tags + competencies
-
 from collections import Counter
 from typing import Dict, Iterable, List, Set, Any
 
@@ -44,12 +43,12 @@ class ContentBasedRecommender:
         if activity_id not in self.activities:
             return []
         scores = []
-        #loops through all activities to compute similarity scores against the given activity
+        # Loops through all activities to compute similarity scores against the given activity
         for candidate_id in self.activities:
             if candidate_id == activity_id:
                 # Guard clause skips self
                 continue
-            #aggregate similarity scores for each candidate activity, calls similarity subfunction
+            # Aggregate similarity scores for each candidate activity, calls similarity subfunction
             scores.append((candidate_id, self.similarity(activity_id, candidate_id)))
         # Sort highest similarity first so top_n is the most relevant
         scores.sort(key=lambda pair: pair[1], reverse=True)

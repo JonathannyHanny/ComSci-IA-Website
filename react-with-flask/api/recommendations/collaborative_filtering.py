@@ -1,3 +1,4 @@
+# Collaborative reccomendation based off of what similiar users are signed up for
 from collections import defaultdict, Counter
 from typing import Dict, Iterable, List, Any, Set
 import math
